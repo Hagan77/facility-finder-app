@@ -11,6 +11,7 @@ interface Facility {
   name: string;
   location: string;
   district: string;
+  sector?: string | null;
   effective_date: string;
   expiry_date: string;
   created_at: string;
@@ -109,6 +110,10 @@ const FacilitySearch = () => {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">District</p>
                         <p>{facility.district}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Sector</p>
+                        <p>{facility.sector || "Not specified"}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Effective Date</p>
