@@ -64,26 +64,38 @@ const FacilitySearch = () => {
     if (!dateString) return "Not specified";
     
     try {
-      // Parse DD/MM/YYYY or D/M/YYYY format
-      const parts = dateString.split('/');
-      if (parts.length === 3) {
-        const day = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-indexed
-        const year = parseInt(parts[2], 10);
-        
-        const date = new Date(year, month, day);
-        
-        // Validate the date
-        if (date.getFullYear() === year && date.getMonth() === month && date.getDate() === day) {
-          return date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
+      // First, try parsing DD/MM/YYYY or D/M/YYYY format
+      if (dateString.includes('/')) {
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+          const day = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-indexed
+          const year = parseInt(parts[2], 10);
+          
+          const date = new Date(year, month, day);
+          
+          // Validate the date
+          if (date.getFullYear() === year && date.getMonth() === month && date.getDate() === day) {
+            return date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long", 
+              day: "numeric",
+            });
+          }
         }
       }
       
-      // Fallback: return original string if parsing fails
+      // Try parsing standard date formats (YYYY-MM-DD, etc.)
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      }
+      
+      // Fallback: return original string if all parsing fails
       return dateString;
     } catch (error) {
       return dateString;
