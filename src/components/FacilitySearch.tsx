@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface Facility {
-  id: string;
+  id: number;
   name: string;
   location: string;
   district: string;
