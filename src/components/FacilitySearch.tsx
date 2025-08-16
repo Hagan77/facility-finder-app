@@ -19,15 +19,16 @@ interface Facility {
 
 const FacilitySearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const { toast } = useToast();
 
   const handleSearch = async () => {
-    if (!searchTerm.trim()) {
+    if (!searchTerm.trim() && !locationFilter.trim()) {
       toast({
-        title: "Please enter a facility name",
+        title: "Please enter a facility name or location",
         variant: "destructive",
       });
       return;
@@ -37,11 +38,21 @@ const FacilitySearch = () => {
     setSearched(true);
 
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("facilities")
-        .select("*")
-        .ilike("name", `%${searchTerm}%`)
-        .order("name");
+        .select("*");
+
+      // Apply name filter if provided
+      if (searchTerm.trim()) {
+        query = query.ilike("name", `%${searchTerm}%`);
+      }
+
+      // Apply location filter if provided
+      if (locationFilter.trim()) {
+        query = query.ilike("location", `%${locationFilter}%`);
+      }
+
+      const { data, error } = await query.order("name").order("location");
 
       if (error) {
         throw error;
@@ -102,64 +113,110 @@ const FacilitySearch = () => {
     }
   };
 
+  // Group facilities by name for better organization
+  const groupedFacilities = facilities.reduce((acc, facility) => {
+    const key = facility.name;
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(facility);
+    return acc;
+  }, {} as Record<string, Facility[]>);
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <div className="flex gap-2">
-        <Input
-          placeholder="Search for a facility by name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-          className="flex-1"
-        />
-        <Button onClick={handleSearch} disabled={loading}>
-          <Search className="h-4 w-4" />
-          {loading ? "Searching..." : "Search"}
+      <div className="space-y-4">
+        <div className="grid gap-2 md:grid-cols-2">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Facility Name</label>
+            <Input
+              placeholder="Search by facility name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Location</label>
+            <Input
+              placeholder="Filter by location..."
+              value={locationFilter}
+              onChange={(e) => setLocationFilter(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+            />
+          </div>
+        </div>
+        <Button onClick={handleSearch} disabled={loading} className="w-full md:w-auto">
+          <Search className="h-4 w-4 mr-2" />
+          {loading ? "Searching..." : "Search Facilities"}
         </Button>
       </div>
 
       {searched && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {facilities.length === 0 ? (
             <Card>
               <CardContent className="p-6">
                 <p className="text-center text-muted-foreground">
-                  No facilities found matching "{searchTerm}"
+                  No facilities found matching your search criteria
                 </p>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4">
-              {facilities.map((facility) => (
-                <Card key={facility.id}>
-                  <CardHeader>
-                    <CardTitle className="text-xl">{facility.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Location</p>
-                        <p>{facility.location}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">District</p>
-                        <p>{facility.district}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Sector</p>
-                        <p>{facility.sector || "Not specified"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Effective Date</p>
-                        <p>{formatDate(facility.effective_date)}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Expiry Date</p>
-                        <p>{formatDate(facility.expiry_date)}</p>
-                      </div>
+            <div className="space-y-6">
+              {Object.entries(groupedFacilities).map(([facilityName, facilityGroup]) => (
+                <div key={facilityName} className="space-y-3">
+                  {facilityGroup.length > 1 && (
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-semibold">{facilityName}</h3>
+                      <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
+                        {facilityGroup.length} locations
+                      </span>
                     </div>
-                  </CardContent>
-                </Card>
+                  )}
+                  <div className="grid gap-3">
+                    {facilityGroup.map((facility) => (
+                      <Card key={facility.id} className="border-l-4 border-l-primary/20">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-xl flex items-center justify-between">
+                            <span>{facility.name}</span>
+                            {facilityGroup.length > 1 && (
+                              <span className="text-sm font-normal text-muted-foreground bg-background border px-2 py-1 rounded">
+                                {facility.location}
+                              </span>
+                            )}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {facilityGroup.length === 1 && (
+                              <div>
+                                <p className="text-sm font-medium text-muted-foreground">Location</p>
+                                <p>{facility.location}</p>
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground">District</p>
+                              <p>{facility.district}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground">Sector</p>
+                              <p>{facility.sector || "Not specified"}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground">Effective Date</p>
+                              <p>{formatDate(facility.effective_date)}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground">Expiry Date</p>
+                              <p>{formatDate(facility.expiry_date)}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           )}
