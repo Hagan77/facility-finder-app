@@ -20,24 +20,57 @@ export type Database = {
           district: string | null
           effective_date: string | null
           expiry_date: string | null
+          file_location_id: string | null
           id: number
           location: string | null
           name: string | null
+          sector: string | null
         }
         Insert: {
           created_at?: string
           district?: string | null
           effective_date?: string | null
           expiry_date?: string | null
+          file_location_id?: string | null
           id?: number
           location?: string | null
           name?: string | null
+          sector?: string | null
         }
         Update: {
           created_at?: string
           district?: string | null
           effective_date?: string | null
           expiry_date?: string | null
+          file_location_id?: string | null
+          id?: number
+          location?: string | null
+          name?: string | null
+          sector?: string | null
+        }
+        Relationships: []
+      }
+      facility: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: number
+          location: string | null
+          name: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          location?: string | null
+          name?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
           id?: number
           location?: string | null
           name?: string | null

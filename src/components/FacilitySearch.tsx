@@ -15,6 +15,7 @@ interface Facility {
   effective_date: string;
   expiry_date: string;
   created_at: string;
+  file_location_id?: string | null;
 }
 
 const FacilitySearch = () => {
@@ -210,6 +211,10 @@ const FacilitySearch = () => {
                             <div>
                               <p className="text-sm font-medium text-muted-foreground">Expiry Date</p>
                               <p>{formatDate(facility.expiry_date)}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-muted-foreground">File Location ID</p>
+                              <p>{facility.file_location_id || "Not specified"}</p>
                             </div>
                           </div>
                         </CardContent>
