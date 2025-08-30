@@ -50,33 +50,6 @@ export type Database = {
         }
         Relationships: []
       }
-      facility: {
-        Row: {
-          category: string | null
-          created_at: string
-          description: string | null
-          id: number
-          location: string | null
-          name: string | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string
-          description?: string | null
-          id?: number
-          location?: string | null
-          name?: string | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string
-          description?: string | null
-          id?: number
-          location?: string | null
-          name?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
