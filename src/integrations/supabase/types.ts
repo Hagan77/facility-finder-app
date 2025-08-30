@@ -50,6 +50,39 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount_paid: number
+          category: string | null
+          created_at: string
+          id: string
+          location: string
+          name: string
+          payment_date: string
+          sector: string | null
+        }
+        Insert: {
+          amount_paid: number
+          category?: string | null
+          created_at?: string
+          id?: string
+          location: string
+          name: string
+          payment_date: string
+          sector?: string | null
+        }
+        Update: {
+          amount_paid?: number
+          category?: string | null
+          created_at?: string
+          id?: string
+          location?: string
+          name?: string
+          payment_date?: string
+          sector?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
