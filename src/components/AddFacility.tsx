@@ -4,12 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Building, Search, CreditCard, Info } from "lucide-react";
+import { Building, Search, CreditCard, Info, Database } from "lucide-react";
 
 const AddFacility = () => {
-  const [formData, setFormData] = useState({
+  const [databaseType, setDatabaseType] = useState<"permit" | "payment">("permit");
+  const [facilityFormData, setFacilityFormData] = useState({
     name: "",
     location: "",
     district: "",
@@ -17,12 +19,28 @@ const AddFacility = () => {
     effective_date: "",
     expiry_date: "",
   });
+  const [paymentFormData, setPaymentFormData] = useState({
+    name: "",
+    location: "",
+    sector: "",
+    category: "",
+    amount_paid: "",
+    payment_date: "",
+  });
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFacilityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFacilityFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handlePaymentInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPaymentFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -31,44 +49,81 @@ const AddFacility = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.location || !formData.district || !formData.effective_date || !formData.expiry_date) {
-      toast({
-        title: "Please fill in all required fields",
-        description: "Name, location, district, and dates are required",
-        variant: "destructive",
-      });
-      return;
+    if (databaseType === "permit") {
+      if (!facilityFormData.name || !facilityFormData.location || !facilityFormData.district || !facilityFormData.effective_date || !facilityFormData.expiry_date) {
+        toast({
+          title: "Please fill in all required fields",
+          description: "Name, location, district, and dates are required",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      if (!paymentFormData.name || !paymentFormData.location || !paymentFormData.amount_paid || !paymentFormData.payment_date) {
+        toast({
+          title: "Please fill in all required fields",
+          description: "Name, location, amount paid, and payment date are required",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from("facilities")
-        .insert([formData]);
+      if (databaseType === "permit") {
+        const { error } = await supabase
+          .from("facilities")
+          .insert([facilityFormData]);
 
-      if (error) {
-        throw error;
+        if (error) throw error;
+
+        toast({
+          title: "Facility added successfully",
+          description: `${facilityFormData.name} has been added to the permit database. You can now search for it in "Check Permit Status".`,
+        });
+
+        // Reset form
+        setFacilityFormData({
+          name: "",
+          location: "",
+          district: "",
+          sector: "",
+          effective_date: "",
+          expiry_date: "",
+        });
+      } else {
+        const paymentData = {
+          ...paymentFormData,
+          amount_paid: parseFloat(paymentFormData.amount_paid),
+        };
+
+        const { error } = await supabase
+          .from("payments")
+          .insert([paymentData]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Payment record added successfully",
+          description: `Payment record for ${paymentFormData.name} has been added to the payment database. You can now search for it in "Check Payment Status".`,
+        });
+
+        // Reset form
+        setPaymentFormData({
+          name: "",
+          location: "",
+          sector: "",
+          category: "",
+          amount_paid: "",
+          payment_date: "",
+        });
       }
-
-      toast({
-        title: "Facility added successfully",
-        description: `${formData.name} has been added to the permit database. You can now search for it in "Check Permit Status".`,
-      });
-
-      // Reset form
-      setFormData({
-        name: "",
-        location: "",
-        district: "",
-        sector: "",
-        effective_date: "",
-        expiry_date: "",
-      });
     } catch (error) {
-      console.error("Error adding facility:", error);
+      console.error("Error adding record:", error);
       toast({
-        title: "Error adding facility",
+        title: `Error adding ${databaseType === "permit" ? "facility" : "payment record"}`,
         description: "Please try again later",
         variant: "destructive",
       });
@@ -82,9 +137,8 @@ const AddFacility = () => {
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          <strong>About Adding Facilities:</strong> When you add a facility here, it will be stored in the permit database. 
-          You can then search for this facility using the <strong>"Check Permit Status"</strong> function. 
-          To add payment records for this facility, you'll need to add them separately to the payment database.
+          <strong>About Adding Records:</strong> Choose between adding to the permit database 
+          (searchable via "Check Permit Status") or payment database (searchable via "Check Payment Status").
         </AlertDescription>
       </Alert>
 
@@ -93,11 +147,11 @@ const AddFacility = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Search className="w-5 h-5" />
-              After Adding - Check Permit Status
+              Permit Database
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            Once added, you can search for this facility in the "Check Permit Status" section using the facility name or location.
+            Facilities added here can be searched in "Check Permit Status" using facility name or location.
           </CardContent>
         </Card>
 
@@ -105,11 +159,11 @@ const AddFacility = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="w-5 h-5" />
-              Payment Records Separate
+              Payment Database
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            Payment records are stored separately. Use "Check Payment Status" to search existing payment data.
+            Payment records added here can be searched in "Check Payment Status".
           </CardContent>
         </Card>
       </div>
@@ -117,89 +171,185 @@ const AddFacility = () => {
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Building className="w-5 h-5" />
-            Add New Facility to Permit Database
+            <Database className="w-5 h-5" />
+            Add New Record
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Facility Name</Label>
-            <Input
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Enter facility name"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleInputChange}
-              placeholder="Enter location"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="district">District</Label>
-            <Input
-              id="district"
-              name="district"
-              value={formData.district}
-              onChange={handleInputChange}
-              placeholder="Enter district"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="sector">Sector (Optional)</Label>
-            <Input
-              id="sector"
-              name="sector"
-              value={formData.sector}
-              onChange={handleInputChange}
-              placeholder="e.g., Mining, Agriculture, Manufacturing"
-            />
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="effective_date">Effective Date</Label>
-              <Input
-                id="effective_date"
-                name="effective_date"
-                type="date"
-                value={formData.effective_date}
-                onChange={handleInputChange}
-                required
-              />
+              <Label htmlFor="database-type">Select Database</Label>
+              <Select value={databaseType} onValueChange={(value: "permit" | "payment") => setDatabaseType(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose database type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="permit">Permit Status Database</SelectItem>
+                  <SelectItem value="payment">Payment Records Database</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="expiry_date">Expiry Date</Label>
-              <Input
-                id="expiry_date"
-                name="expiry_date"
-                type="date"
-                value={formData.expiry_date}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
+            {databaseType === "permit" ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Facility Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={facilityFormData.name}
+                    onChange={handleFacilityInputChange}
+                    placeholder="Enter facility name"
+                    required
+                  />
+                </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Adding Facility..." : "Add Facility"}
-          </Button>
-        </form>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    name="location"
+                    value={facilityFormData.location}
+                    onChange={handleFacilityInputChange}
+                    placeholder="Enter location"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="district">District</Label>
+                  <Input
+                    id="district"
+                    name="district"
+                    value={facilityFormData.district}
+                    onChange={handleFacilityInputChange}
+                    placeholder="Enter district"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="sector">Sector (Optional)</Label>
+                  <Input
+                    id="sector"
+                    name="sector"
+                    value={facilityFormData.sector}
+                    onChange={handleFacilityInputChange}
+                    placeholder="e.g., Mining, Agriculture, Manufacturing"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="effective_date">Effective Date</Label>
+                    <Input
+                      id="effective_date"
+                      name="effective_date"
+                      type="date"
+                      value={facilityFormData.effective_date}
+                      onChange={handleFacilityInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="expiry_date">Expiry Date</Label>
+                    <Input
+                      id="expiry_date"
+                      name="expiry_date"
+                      type="date"
+                      value={facilityFormData.expiry_date}
+                      onChange={handleFacilityInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Facility Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={paymentFormData.name}
+                    onChange={handlePaymentInputChange}
+                    placeholder="Enter facility name"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    name="location"
+                    value={paymentFormData.location}
+                    onChange={handlePaymentInputChange}
+                    placeholder="Enter location"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="sector">Sector (Optional)</Label>
+                  <Input
+                    id="sector"
+                    name="sector"
+                    value={paymentFormData.sector}
+                    onChange={handlePaymentInputChange}
+                    placeholder="e.g., Mining, Agriculture, Manufacturing"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category (Optional)</Label>
+                  <Input
+                    id="category"
+                    name="category"
+                    value={paymentFormData.category}
+                    onChange={handlePaymentInputChange}
+                    placeholder="e.g., License Fee, Permit Fee"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="amount_paid">Amount Paid (GHS)</Label>
+                    <Input
+                      id="amount_paid"
+                      name="amount_paid"
+                      type="number"
+                      step="0.01"
+                      value={paymentFormData.amount_paid}
+                      onChange={handlePaymentInputChange}
+                      placeholder="0.00"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="payment_date">Payment Date</Label>
+                    <Input
+                      id="payment_date"
+                      name="payment_date"
+                      type="date"
+                      value={paymentFormData.payment_date}
+                      onChange={handlePaymentInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading 
+                ? `Adding ${databaseType === "permit" ? "Facility" : "Payment Record"}...` 
+                : `Add ${databaseType === "permit" ? "Facility" : "Payment Record"}`
+              }
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
