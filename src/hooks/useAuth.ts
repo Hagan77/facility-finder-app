@@ -20,8 +20,11 @@ export const useAuth = () => {
 
   const login = () => {
     const user = localStorage.getItem("currentUser");
-    setIsAuthenticated(true);
-    setCurrentUser(user);
+    if (user) {
+      localStorage.setItem("isAuthenticated", "true");
+      setIsAuthenticated(true);
+      setCurrentUser(user);
+    }
   };
 
   const logout = () => {
@@ -29,6 +32,8 @@ export const useAuth = () => {
     localStorage.removeItem("currentUser");
     setIsAuthenticated(false);
     setCurrentUser(null);
+    // Force a page reload to ensure clean state
+    window.location.reload();
   };
 
   return {
