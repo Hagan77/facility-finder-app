@@ -11,7 +11,7 @@ import { useAuth } from "./hooks/useAuth";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const { isAuthenticated, isLoading, login } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -27,7 +27,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <Login onLogin={login} />
+          <Login />
         </TooltipProvider>
       </QueryClientProvider>
     );
