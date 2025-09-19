@@ -107,11 +107,10 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 px-4">
         <div className="flex justify-between items-center mb-8">
-          <div className="flex-1">
+          <div className="flex items-center gap-4">
+            <img src="/logo.ico" alt="Logo" className="w-8 h-8" />
             {currentView === 'main' && (
-              <div className="text-center">
-                <span className="text-sm text-muted-foreground">Welcome, {currentUser}</span>
-              </div>
+              <span className="text-sm text-muted-foreground">Welcome, {currentUser}</span>
             )}
           </div>
           <Button variant="outline" onClick={logout}>
