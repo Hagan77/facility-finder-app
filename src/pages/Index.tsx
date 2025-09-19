@@ -108,10 +108,13 @@ const Index = () => {
       <div className="container mx-auto py-8 px-4">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
-            <img src="/logo.ico" alt="Logo" className="w-8 h-8" />
-            {currentView === 'main' && (
-              <span className="text-sm text-muted-foreground">Welcome, {currentUser}</span>
-            )}
+            <img src="/logo.png" alt="Facility Finder Logo" className="h-10 w-auto" />
+            <div className="flex flex-col">
+              <span className="text-lg font-semibold">facility-finder-app.lovable.app</span>
+              {currentView === 'main' && (
+                <span className="text-sm text-muted-foreground">Welcome, {currentUser}</span>
+              )}
+            </div>
           </div>
           <Button variant="outline" onClick={logout}>
             Logout
