@@ -5,7 +5,8 @@ const validCredentials = [
   { username: "admin", password: "admin123" },
   { username: "user", password: "password" },
   { username: "Eugene", password: "Dastan" },
-  { username: "Hagan", password: "Dunstan" }
+  { username: "Hagan", password: "Dunstan" },
+  { username: "Zenora1", password: "Max1" }
 ];
 
 export const useAuth = () => {
