@@ -1,78 +1,56 @@
 import { useState, useEffect } from "react";
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from "@/integrations/supabase/client";
+
+// Predefined user credentials
+const validCredentials = [
+  { username: "admin", password: "admin123" },
+  { username: "user", password: "password" },
+  { username: "Eugene", password: "Dastan" }
+];
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsAuthenticated(!!session);
-        setCurrentUser(session?.user?.email ?? null);
-        setIsLoading(false);
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsAuthenticated(!!session);
-      setCurrentUser(session?.user?.email ?? null);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    // Check if user is already logged in
+    const savedAuth = localStorage.getItem("isAuthenticated");
+    const savedUser = localStorage.getItem("currentUser");
+    
+    if (savedAuth === "true" && savedUser) {
+      setIsAuthenticated(true);
+      setCurrentUser(savedUser);
+    }
+    setIsLoading(false);
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { data, error };
-  };
+  const login = (username: string, password: string): boolean => {
+    const validUser = validCredentials.find(
+      (cred) => cred.username === username && cred.password === password
+    );
 
-  const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl
-      }
-    });
-    return { data, error };
-  };
-
-  const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      setSession(null);
-      setUser(null);
-      setIsAuthenticated(false);
-      setCurrentUser(null);
+    if (validUser) {
+      setIsAuthenticated(true);
+      setCurrentUser(username);
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("currentUser", username);
+      return true;
     }
-    return { error };
+    return false;
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("currentUser");
   };
 
   return {
     isAuthenticated,
     currentUser,
-    user,
-    session,
     isLoading,
-    signIn,
-    signUp,
+    login,
     logout
   };
 };
