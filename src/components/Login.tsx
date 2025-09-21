@@ -9,25 +9,36 @@ import { useToast } from "@/hooks/use-toast";
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLogging, setIsLogging] = useState(false);
   const { login } = useAuth();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = login(username, password);
+    setIsLogging(true);
     
-    if (!success) {
-      toast({
-        title: "Login Failed",
-        description: "Invalid username or password",
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${username}!`,
-      });
-    }
+    // Small delay to ensure state updates properly
+    setTimeout(() => {
+      const success = login(username, password);
+      
+      if (!success) {
+        toast({
+          title: "Login Failed",
+          description: "Invalid username or password",
+          variant: "destructive"
+        });
+        setIsLogging(false);
+      } else {
+        toast({
+          title: "Login Successful",
+          description: `Welcome back, ${username}!`,
+        });
+        // Clear form after successful login
+        setUsername("");
+        setPassword("");
+        setIsLogging(false);
+      }
+    }, 100);
   };
 
   return (
@@ -65,8 +76,8 @@ const Login: React.FC = () => {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
-              Login
+            <Button type="submit" className="w-full" disabled={isLogging}>
+              {isLogging ? "Logging in..." : "Login"}
             </Button>
           </form>
         </CardContent>
