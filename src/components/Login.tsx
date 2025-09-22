@@ -17,28 +17,26 @@ const Login: React.FC = () => {
     e.preventDefault();
     setIsLogging(true);
     
-    // Small delay to ensure state updates properly
-    setTimeout(() => {
-      const success = login(username, password);
-      
-      if (!success) {
-        toast({
-          title: "Login Failed",
-          description: "Invalid username or password",
-          variant: "destructive"
-        });
-        setIsLogging(false);
-      } else {
-        toast({
-          title: "Login Successful",
-          description: `Welcome back, ${username}!`,
-        });
-        // Clear form after successful login
-        setUsername("");
-        setPassword("");
-        setIsLogging(false);
-      }
-    }, 100);
+    const success = login(username, password);
+    
+    if (!success) {
+      toast({
+        title: "Login Failed",
+        description: "Invalid username or password",
+        variant: "destructive"
+      });
+      setIsLogging(false);
+    } else {
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${username}!`,
+      });
+      // Clear form after successful login
+      setUsername("");
+      setPassword("");
+      setIsLogging(false);
+      // The App component will automatically redirect based on isAuthenticated state
+    }
   };
 
   return (

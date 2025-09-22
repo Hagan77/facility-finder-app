@@ -48,8 +48,6 @@ export const useAuth = () => {
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("currentUser");
     console.log("Logout completed - auth state cleared");
-    // Force a page reload to ensure app re-renders with new auth state
-    window.location.reload();
   };
 
   return {
