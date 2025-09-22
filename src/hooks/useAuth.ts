@@ -42,10 +42,14 @@ export const useAuth = () => {
   };
 
   const logout = () => {
+    console.log("Logout function called");
     setIsAuthenticated(false);
     setCurrentUser(null);
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("currentUser");
+    console.log("Logout completed - auth state cleared");
+    // Force a page reload to ensure app re-renders with new auth state
+    window.location.reload();
   };
 
   return {
