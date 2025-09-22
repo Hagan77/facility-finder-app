@@ -62,12 +62,8 @@ const Index = () => {
       case 'permit':
         return (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <Button variant="outline" onClick={() => setCurrentView('main')}>
-                ← Back to Menu
-              </Button>
+            <div className="text-center">
               <h2 className="text-2xl font-bold">Permit Status</h2>
-              <div></div>
             </div>
             <FacilitySearch />
           </div>
@@ -75,12 +71,8 @@ const Index = () => {
       case 'payment':
         return (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <Button variant="outline" onClick={() => setCurrentView('main')}>
-                ← Back to Menu
-              </Button>
+            <div className="text-center">
               <h2 className="text-2xl font-bold">Payment Status</h2>
-              <div></div>
             </div>
             <PaymentSearch />
           </div>
@@ -88,12 +80,8 @@ const Index = () => {
       case 'add':
         return (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <Button variant="outline" onClick={() => setCurrentView('main')}>
-                ← Back to Menu
-              </Button>
+            <div className="text-center">
               <h2 className="text-2xl font-bold">Add New Facility</h2>
-              <div></div>
             </div>
             <AddFacility />
           </div>
@@ -103,20 +91,37 @@ const Index = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            {currentView === 'main' && (
-              <span className="text-sm text-muted-foreground">Welcome, {currentUser}</span>
-            )}
+      {/* Top Navigation Bar */}
+      <nav className="border-b bg-background">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex justify-between items-center">
+            {/* Left side - Back to Menu button or Welcome message */}
+            <div className="flex items-center">
+              {currentView !== 'main' ? (
+                <Button variant="outline" onClick={() => setCurrentView('main')}>
+                  ← Back to Menu
+                </Button>
+              ) : (
+                <span className="text-sm text-muted-foreground">Welcome, {currentUser}</span>
+              )}
+            </div>
+            
+            {/* Right side - Logout button */}
+            <Button variant="outline" onClick={handleLogout}>
+              Logout
+            </Button>
           </div>
-          <Button variant="outline" onClick={logout}>
-            Logout
-          </Button>
         </div>
-        
+      </nav>
+
+      {/* Main Content */}
+      <div className="container mx-auto py-8 px-4">
         {renderCurrentView()}
       </div>
     </div>
