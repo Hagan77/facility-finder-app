@@ -10,21 +10,13 @@ const validCredentials = [
 ];
 
 export const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user is already logged in
-    const savedAuth = localStorage.getItem("isAuthenticated");
-    const savedUser = localStorage.getItem("currentUser");
-    
-    if (savedAuth === "true" && savedUser) {
-      setIsAuthenticated(true);
-      setCurrentUser(savedUser);
-    }
-    setIsLoading(false);
-  }, []);
+  // Initialize state immediately from localStorage to avoid loading delay
+  const savedAuth = localStorage.getItem("isAuthenticated");
+  const savedUser = localStorage.getItem("currentUser");
+  
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(savedAuth === "true");
+  const [currentUser, setCurrentUser] = useState<string | null>(savedUser);
+  const [isLoading, setIsLoading] = useState(false); // No loading needed since we initialize immediately
 
   const login = (username: string, password: string): boolean => {
     const validUser = validCredentials.find(
