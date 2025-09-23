@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FacilitySearch from "@/components/FacilitySearch";
 import PaymentSearch from "@/components/PaymentSearch";
 import AddFacility from "@/components/AddFacility";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { Search, CreditCard, Plus } from "lucide-react";
 
 const Index = () => {
