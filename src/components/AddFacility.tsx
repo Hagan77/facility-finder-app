@@ -16,6 +16,7 @@ const AddFacility = () => {
     location: "",
     district: "",
     sector: "",
+    file_location_id: "",
     effective_date: "",
     expiry_date: "",
   });
@@ -50,10 +51,10 @@ const AddFacility = () => {
     e.preventDefault();
     
     if (databaseType === "permit") {
-      if (!facilityFormData.name || !facilityFormData.location || !facilityFormData.district || !facilityFormData.effective_date || !facilityFormData.expiry_date) {
+      if (!facilityFormData.name || !facilityFormData.location || !facilityFormData.district || !facilityFormData.file_location_id || !facilityFormData.effective_date || !facilityFormData.expiry_date) {
         toast({
           title: "Please fill in all required fields",
-          description: "Name, location, district, and dates are required",
+          description: "Name, location, district, file location ID, and dates are required",
           variant: "destructive",
         });
         return;
@@ -93,6 +94,7 @@ const AddFacility = () => {
           location: "",
           district: "",
           sector: "",
+          file_location_id: "",
           effective_date: "",
           expiry_date: "",
         });
@@ -242,6 +244,18 @@ const AddFacility = () => {
                     value={facilityFormData.sector}
                     onChange={handleFacilityInputChange}
                     placeholder="e.g., Mining, Agriculture, Manufacturing"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="file_location_id">File Location ID</Label>
+                  <Input
+                    id="file_location_id"
+                    name="file_location_id"
+                    value={facilityFormData.file_location_id}
+                    onChange={handleFacilityInputChange}
+                    placeholder="Enter file location ID"
+                    required
                   />
                 </div>
 
