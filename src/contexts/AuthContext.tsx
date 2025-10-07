@@ -6,7 +6,9 @@ const validCredentials = [
   { username: "user", password: "password" },
   { username: "Eugene", password: "Dastan" },
   { username: "Hagan", password: "Dunstan" },
-  { username: "Zenora1", password: "Max1" }
+  { username: "Zenora1", password: "Max1" },
+  { username: "Head1", password: "Director1" },
+  { username: "Head2", password: "Director2" }
 ];
 
 interface AuthContextType {

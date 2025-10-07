@@ -77,7 +77,10 @@ const AddFacility = () => {
           .from("facilities")
           .insert([facilityFormData]);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Facility insert error:", error);
+          throw error;
+        }
 
         toast({
           title: "Facility added successfully",
@@ -103,7 +106,10 @@ const AddFacility = () => {
           .from("payments")
           .insert([paymentData]);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Payment insert error:", error);
+          throw error;
+        }
 
         toast({
           title: "Payment record added successfully",
@@ -120,11 +126,11 @@ const AddFacility = () => {
           payment_date: "",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding record:", error);
       toast({
         title: `Error adding ${databaseType === "permit" ? "facility" : "payment record"}`,
-        description: "Please try again later",
+        description: error?.message || "Please check console for details and try again",
         variant: "destructive",
       });
     } finally {
