@@ -4,12 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FacilitySearch from "@/components/FacilitySearch";
 import PaymentSearch from "@/components/PaymentSearch";
 import AddFacility from "@/components/AddFacility";
+import AdminDashboard from "@/components/AdminDashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Search, CreditCard, Plus } from "lucide-react";
 
 const Index = () => {
   const { currentUser, logout } = useAuth();
   const [currentView, setCurrentView] = useState<'main' | 'permit' | 'payment' | 'add'>('main');
+  
+  // Check if current user is a director
+  const isDirector = currentUser === 'Head1' || currentUser === 'Head2';
 
   const renderMainMenu = () => (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -95,6 +99,31 @@ const Index = () => {
     logout();
   };
 
+  // If user is a director, show admin dashboard
+  if (isDirector) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Top Navigation Bar */}
+        <nav className="border-b bg-background">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Welcome, Director {currentUser}</span>
+              <Button variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
+            </div>
+          </div>
+        </nav>
+
+        {/* Main Content */}
+        <div className="container mx-auto py-8 px-4">
+          <AdminDashboard />
+        </div>
+      </div>
+    );
+  }
+
+  // Regular user interface
   return (
     <div className="min-h-screen bg-background">
       {/* Top Navigation Bar */}
