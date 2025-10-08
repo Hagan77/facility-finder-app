@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, CreditCard, TrendingUp, Calendar, FileText, DollarSign } from "lucide-react";
+import { Building2, CreditCard, TrendingUp, Calendar, FileText, DollarSign, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import FacilitySearch from "./FacilitySearch";
+import PaymentSearch from "./PaymentSearch";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -114,6 +117,21 @@ const AdminDashboard = () => {
         <h1 className="text-4xl font-bold mb-2">Director Dashboard</h1>
         <p className="text-xl text-muted-foreground">Overview of facility management system</p>
       </div>
+
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="facility-search">
+            <Search className="w-4 h-4 mr-2" />
+            Facility Search
+          </TabsTrigger>
+          <TabsTrigger value="payment-search">
+            <Search className="w-4 h-4 mr-2" />
+            Payment Search
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6 mt-6">
 
       {/* Stats Cards */}
       <div className="grid gap-6 md:grid-cols-3">
@@ -231,13 +249,23 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
-      {/* Refresh Button */}
-      <div className="text-center">
-        <Button onClick={fetchDashboardData} variant="outline">
-          <Calendar className="w-4 h-4 mr-2" />
-          Refresh Data
-        </Button>
-      </div>
+        {/* Refresh Button */}
+        <div className="text-center">
+          <Button onClick={fetchDashboardData} variant="outline">
+            <Calendar className="w-4 h-4 mr-2" />
+            Refresh Data
+          </Button>
+        </div>
+        </TabsContent>
+
+        <TabsContent value="facility-search" className="mt-6">
+          <FacilitySearch />
+        </TabsContent>
+
+        <TabsContent value="payment-search" className="mt-6">
+          <PaymentSearch />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
