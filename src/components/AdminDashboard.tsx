@@ -24,8 +24,15 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
 
-      // Fetch facilities count and recent facilities
-      const { data: facilities, error: facilityError } = await supabase
+      // Fetch total count of facilities
+      const { count: facilitiesCount, error: facilitiesCountError } = await supabase
+        .from("facilities")
+        .select("*", { count: "exact", head: true });
+
+      if (facilitiesCountError) throw facilitiesCountError;
+
+      // Fetch recent facilities
+      const { data: recentFacilities, error: facilityError } = await supabase
         .from("facilities")
         .select("*")
         .order("created_at", { ascending: false })
@@ -33,8 +40,22 @@ const AdminDashboard = () => {
 
       if (facilityError) throw facilityError;
 
-      // Fetch payments count, total revenue, and recent payments
-      const { data: payments, error: paymentError } = await supabase
+      // Fetch total count of payments
+      const { count: paymentsCount, error: paymentsCountError } = await supabase
+        .from("payments")
+        .select("*", { count: "exact", head: true });
+
+      if (paymentsCountError) throw paymentsCountError;
+
+      // Fetch ALL payments to calculate total revenue
+      const { data: allPayments, error: allPaymentsError } = await supabase
+        .from("payments")
+        .select("amount_paid");
+
+      if (allPaymentsError) throw allPaymentsError;
+
+      // Fetch recent payments for display
+      const { data: recentPayments, error: paymentError } = await supabase
         .from("payments")
         .select("*")
         .order("created_at", { ascending: false })
@@ -42,14 +63,14 @@ const AdminDashboard = () => {
 
       if (paymentError) throw paymentError;
 
-      const totalRevenue = payments?.reduce((sum, p) => sum + (p.amount_paid || 0), 0) || 0;
+      const totalRevenue = allPayments?.reduce((sum, p) => sum + (p.amount_paid || 0), 0) || 0;
 
       setStats({
-        totalFacilities: facilities?.length || 0,
-        totalPayments: payments?.length || 0,
+        totalFacilities: facilitiesCount || 0,
+        totalPayments: paymentsCount || 0,
         totalRevenue,
-        recentFacilities: facilities || [],
-        recentPayments: payments || [],
+        recentFacilities: recentFacilities || [],
+        recentPayments: recentPayments || [],
       });
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
