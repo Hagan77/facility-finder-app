@@ -3,18 +3,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, CreditCard, TrendingUp, Calendar, FileText, DollarSign, Search } from "lucide-react";
+import { Building2, CreditCard, TrendingUp, Calendar, FileText, DollarSign, Search, AlertCircle, Clock, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import FacilitySearch from "./FacilitySearch";
 import PaymentSearch from "./PaymentSearch";
 
-const AdminDashboard = () => {
+interface AdminDashboardProps {
+  sectorFilter?: string;
+  title?: string;
+}
+
+const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDashboardProps) => {
   const [stats, setStats] = useState({
     totalFacilities: 0,
     totalPayments: 0,
     totalRevenue: 0,
     recentFacilities: [] as any[],
     recentPayments: [] as any[],
+    expiredFacilities: 0,
+    expiringFacilities: 0,
+    activeFacilities: 0,
+    sectorBreakdown: [] as any[],
   });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -27,20 +36,67 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
 
-      // Fetch total count of facilities
-      const { count: facilitiesCount, error: facilitiesCountError } = await supabase
-        .from("facilities")
-        .select("*", { count: "exact", head: true });
+      // Build query with optional sector filter
+      let facilitiesQuery = supabase.from("facilities").select("*");
+      if (sectorFilter) {
+        facilitiesQuery = facilitiesQuery.eq("sector", sectorFilter);
+      }
 
-      if (facilitiesCountError) throw facilitiesCountError;
+      // Fetch all facilities for status calculations
+      const { data: allFacilities, error: allFacilitiesError } = await facilitiesQuery;
+      if (allFacilitiesError) throw allFacilitiesError;
+
+      // Calculate facility statuses
+      const today = new Date();
+      const thirtyDaysFromNow = new Date();
+      thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+      let expired = 0;
+      let expiring = 0;
+      let active = 0;
+      const sectorStats: Record<string, { expired: number; expiring: number; active: number; total: number }> = {};
+
+      allFacilities?.forEach((facility) => {
+        const expiryDate = facility.expiry_date ? new Date(facility.expiry_date) : null;
+        const sector = facility.sector || "Unknown";
+
+        if (!sectorStats[sector]) {
+          sectorStats[sector] = { expired: 0, expiring: 0, active: 0, total: 0 };
+        }
+        sectorStats[sector].total++;
+
+        if (!expiryDate) {
+          active++;
+          sectorStats[sector].active++;
+        } else if (expiryDate < today) {
+          expired++;
+          sectorStats[sector].expired++;
+        } else if (expiryDate <= thirtyDaysFromNow) {
+          expiring++;
+          sectorStats[sector].expiring++;
+        } else {
+          active++;
+          sectorStats[sector].active++;
+        }
+      });
+
+      const sectorBreakdown = Object.entries(sectorStats).map(([sector, stats]) => ({
+        sector,
+        ...stats,
+      }));
 
       // Fetch recent facilities
-      const { data: recentFacilities, error: facilityError } = await supabase
+      let recentQuery = supabase
         .from("facilities")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(5);
+      
+      if (sectorFilter) {
+        recentQuery = recentQuery.eq("sector", sectorFilter);
+      }
 
+      const { data: recentFacilities, error: facilityError } = await recentQuery;
       if (facilityError) throw facilityError;
 
       // Fetch total count of payments
@@ -69,11 +125,15 @@ const AdminDashboard = () => {
       const totalRevenue = allPayments?.reduce((sum, p) => sum + (p.amount_paid || 0), 0) || 0;
 
       setStats({
-        totalFacilities: facilitiesCount || 0,
+        totalFacilities: allFacilities?.length || 0,
         totalPayments: paymentsCount || 0,
         totalRevenue,
         recentFacilities: recentFacilities || [],
         recentPayments: recentPayments || [],
+        expiredFacilities: expired,
+        expiringFacilities: expiring,
+        activeFacilities: active,
+        sectorBreakdown,
       });
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -114,8 +174,10 @@ const AdminDashboard = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-2">Director Dashboard</h1>
-        <p className="text-xl text-muted-foreground">Overview of facility management system</p>
+        <h1 className="text-4xl font-bold mb-2">{title}</h1>
+        <p className="text-xl text-muted-foreground">
+          {sectorFilter ? `${sectorFilter} Sector Overview` : "Overview of facility management system"}
+        </p>
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
@@ -133,7 +195,49 @@ const AdminDashboard = () => {
 
         <TabsContent value="overview" className="space-y-6 mt-6">
 
-      {/* Stats Cards */}
+      {/* Facility Status Cards */}
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Facilities</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{stats.activeFacilities}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Permits valid beyond 30 days
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Expiring Soon</CardTitle>
+            <Clock className="h-4 w-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{stats.expiringFacilities}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Expiring within 30 days
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Expired Facilities</CardTitle>
+            <AlertCircle className="h-4 w-4 text-red-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{stats.expiredFacilities}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Permits have expired
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* General Stats Cards */}
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -174,6 +278,44 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Sector Breakdown */}
+      {!sectorFilter && stats.sectorBreakdown.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              Status by Sector
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats.sectorBreakdown.map((sector) => (
+                <div key={sector.sector} className="border-b pb-3 last:border-0">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="font-medium">{sector.sector}</p>
+                    <p className="text-sm text-muted-foreground">Total: {sector.total}</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div className="bg-green-50 dark:bg-green-950 p-2 rounded">
+                      <p className="text-green-700 dark:text-green-400 font-semibold">{sector.active}</p>
+                      <p className="text-xs text-green-600 dark:text-green-500">Active</p>
+                    </div>
+                    <div className="bg-orange-50 dark:bg-orange-950 p-2 rounded">
+                      <p className="text-orange-700 dark:text-orange-400 font-semibold">{sector.expiring}</p>
+                      <p className="text-xs text-orange-600 dark:text-orange-500">Expiring</p>
+                    </div>
+                    <div className="bg-red-50 dark:bg-red-950 p-2 rounded">
+                      <p className="text-red-700 dark:text-red-400 font-semibold">{sector.expired}</p>
+                      <p className="text-xs text-red-600 dark:text-red-500">Expired</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Activities */}
       <div className="grid gap-6 md:grid-cols-2">

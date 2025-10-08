@@ -12,8 +12,9 @@ const Index = () => {
   const { currentUser, logout } = useAuth();
   const [currentView, setCurrentView] = useState<'main' | 'permit' | 'payment' | 'add'>('main');
   
-  // Check if current user is a director
+  // Check if current user is a director or Eugen
   const isDirector = currentUser === 'Head1' || currentUser === 'Head2';
+  const isEugen = currentUser === 'Eugen';
 
   const renderMainMenu = () => (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -118,6 +119,30 @@ const Index = () => {
         {/* Main Content */}
         <div className="container mx-auto py-8 px-4">
           <AdminDashboard />
+        </div>
+      </div>
+    );
+  }
+
+  // If user is Eugen, show hospitality dashboard
+  if (isEugen) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Top Navigation Bar */}
+        <nav className="border-b bg-background">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Welcome, {currentUser}</span>
+              <Button variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
+            </div>
+          </div>
+        </nav>
+
+        {/* Main Content */}
+        <div className="container mx-auto py-8 px-4">
+          <AdminDashboard sectorFilter="hospitality" title="Hospitality Sector Dashboard" />
         </div>
       </div>
     );
