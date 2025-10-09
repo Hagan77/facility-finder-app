@@ -142,7 +142,7 @@ const Index = () => {
 
         {/* Main Content */}
         <div className="container mx-auto py-8 px-4">
-          <AdminDashboard sectorFilter="hospitality" title="Hospitality Sector Dashboard" />
+          <AdminDashboard sectorFilter="HOSPITALITY" title="Hospitality Sector Dashboard" />
         </div>
       </div>
     );
