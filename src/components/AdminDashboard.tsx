@@ -36,14 +36,17 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
     try {
       setLoading(true);
 
-      // Build query with optional sector filter
-      let facilitiesQuery = supabase.from("facilities").select("*");
+      // Build query with optional sector filter - case insensitive
+      let facilitiesQuery = supabase.from("facilities").select("*", { count: 'exact' });
       if (sectorFilter) {
-        facilitiesQuery = facilitiesQuery.eq("sector", sectorFilter);
+        facilitiesQuery = facilitiesQuery.ilike("sector", sectorFilter);
       }
 
       // Fetch all facilities for status calculations
-      const { data: allFacilities, error: allFacilitiesError } = await facilitiesQuery;
+      const { data: allFacilities, error: allFacilitiesError, count: facilitiesCount } = await facilitiesQuery;
+      if (allFacilitiesError) throw allFacilitiesError;
+      
+      console.log(`Fetched ${allFacilities?.length} facilities, count: ${facilitiesCount}`);
       if (allFacilitiesError) throw allFacilitiesError;
 
       // Helper function to parse DD/MM/YYYY date format
@@ -138,8 +141,11 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
 
       const totalRevenue = allPayments?.reduce((sum, p) => sum + (p.amount_paid || 0), 0) || 0;
 
+      const actualTotal = facilitiesCount || allFacilities?.length || 0;
+      console.log(`Setting stats with totalFacilities: ${actualTotal}`);
+      
       setStats({
-        totalFacilities: allFacilities?.length || 0,
+        totalFacilities: actualTotal,
         totalPayments: paymentsCount || 0,
         totalRevenue,
         recentFacilities: recentFacilities || [],
