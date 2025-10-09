@@ -46,10 +46,20 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       const { data: allFacilities, error: allFacilitiesError } = await facilitiesQuery;
       if (allFacilitiesError) throw allFacilitiesError;
 
+      // Helper function to parse DD/MM/YYYY date format
+      const parseExpiryDate = (dateString: string | null): Date | null => {
+        if (!dateString) return null;
+        const parts = dateString.split('/');
+        if (parts.length !== 3) return null;
+        // DD/MM/YYYY -> new Date(year, month-1, day)
+        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+      };
+
       // Calculate facility statuses
       const today = new Date();
-      const thirtyDaysFromNow = new Date();
-      thirtyDaysFromNow.setDate(today.getDate() + 30);
+      today.setHours(0, 0, 0, 0); // Reset time for accurate date comparison
+      const ninetyDaysFromNow = new Date(today);
+      ninetyDaysFromNow.setDate(today.getDate() + 90);
 
       let expired = 0;
       let expiring = 0;
@@ -57,7 +67,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       const sectorStats: Record<string, { expired: number; expiring: number; active: number; total: number }> = {};
 
       allFacilities?.forEach((facility) => {
-        const expiryDate = facility.expiry_date ? new Date(facility.expiry_date) : null;
+        const expiryDate = parseExpiryDate(facility.expiry_date);
         const sector = facility.sector || "Unknown";
 
         if (!sectorStats[sector]) {
@@ -66,15 +76,19 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         sectorStats[sector].total++;
 
         if (!expiryDate) {
+          // No expiry date means active
           active++;
           sectorStats[sector].active++;
         } else if (expiryDate < today) {
+          // Expired: past expiry date
           expired++;
           sectorStats[sector].expired++;
-        } else if (expiryDate <= thirtyDaysFromNow) {
+        } else if (expiryDate <= ninetyDaysFromNow) {
+          // Expiring: within 90 days (60-90 days range)
           expiring++;
           sectorStats[sector].expiring++;
         } else {
+          // Active: more than 90 days until expiry
           active++;
           sectorStats[sector].active++;
         }
@@ -205,7 +219,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.activeFacilities}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Permits valid beyond 30 days
+              Permits valid beyond 90 days
             </p>
           </CardContent>
         </Card>
@@ -218,7 +232,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{stats.expiringFacilities}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Expiring within 30 days
+              Expiring within 90 days
             </p>
           </CardContent>
         </Card>
