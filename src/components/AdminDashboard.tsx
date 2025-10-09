@@ -51,8 +51,8 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       const { data: allFacilities, error: allFacilitiesError, count: facilitiesCount } = await facilitiesQuery;
       if (allFacilitiesError) throw allFacilitiesError;
       
+      console.log(`Dashboard data fetch - Sector filter: ${sectorFilter || 'None'}`);
       console.log(`Fetched ${allFacilities?.length} facilities, total count: ${facilitiesCount}`);
-      if (allFacilitiesError) throw allFacilitiesError;
 
       // Helper function to parse DD/MM/YYYY date format
       const parseExpiryDate = (dateString: string | null): Date | null => {

@@ -12,9 +12,9 @@ const Index = () => {
   const { currentUser, logout } = useAuth();
   const [currentView, setCurrentView] = useState<'main' | 'permit' | 'payment' | 'add'>('main');
   
-  // Check if current user is a director or Eugen
+  // Check if current user is a director or Eugene
   const isDirector = currentUser === 'Head1' || currentUser === 'Head2';
-  const isEugen = currentUser === 'Eugen';
+  const isEugene = currentUser === 'Eugene';
 
   const renderMainMenu = () => (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -124,8 +124,8 @@ const Index = () => {
     );
   }
 
-  // If user is Eugen, show hospitality dashboard
-  if (isEugen) {
+  // If user is Eugene, show hospitality dashboard
+  if (isEugene) {
     return (
       <div className="min-h-screen bg-background">
         {/* Top Navigation Bar */}
