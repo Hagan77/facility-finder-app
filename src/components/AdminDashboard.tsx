@@ -37,7 +37,12 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       setLoading(true);
 
       // Build query with optional sector filter - case insensitive
-      let facilitiesQuery = supabase.from("facilities").select("*", { count: 'exact' });
+      // IMPORTANT: Supabase has default 1000 row limit, we need to fetch ALL data
+      let facilitiesQuery = supabase
+        .from("facilities")
+        .select("*", { count: 'exact' })
+        .range(0, 10000); // Fetch up to 10,000 rows to get all data
+      
       if (sectorFilter) {
         facilitiesQuery = facilitiesQuery.ilike("sector", sectorFilter);
       }
@@ -46,7 +51,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       const { data: allFacilities, error: allFacilitiesError, count: facilitiesCount } = await facilitiesQuery;
       if (allFacilitiesError) throw allFacilitiesError;
       
-      console.log(`Fetched ${allFacilities?.length} facilities, count: ${facilitiesCount}`);
+      console.log(`Fetched ${allFacilities?.length} facilities, total count: ${facilitiesCount}`);
       if (allFacilitiesError) throw allFacilitiesError;
 
       // Helper function to parse DD/MM/YYYY date format
@@ -102,7 +107,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         ...stats,
       }));
 
-      // Fetch recent facilities
+      // Fetch recent facilities with sector filter
       let recentQuery = supabase
         .from("facilities")
         .select("*")
@@ -110,7 +115,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         .limit(5);
       
       if (sectorFilter) {
-        recentQuery = recentQuery.eq("sector", sectorFilter);
+        recentQuery = recentQuery.ilike("sector", sectorFilter);
       }
 
       const { data: recentFacilities, error: facilityError } = await recentQuery;
