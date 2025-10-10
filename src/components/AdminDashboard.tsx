@@ -30,29 +30,71 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+
+    // Set up real-time subscription for facility changes
+    const channel = supabase
+      .channel('facility-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'facilities'
+        },
+        () => {
+          console.log('Facility change detected, refreshing dashboard...');
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [sectorFilter]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
 
-      // Build query with optional sector filter - case insensitive
-      // IMPORTANT: Supabase has default 1000 row limit, we need to fetch ALL data
-      let facilitiesQuery = supabase
-        .from("facilities")
-        .select("*", { count: 'exact' })
-        .range(0, 10000); // Fetch up to 10,000 rows to get all data
+      // Fetch ALL facilities without any limits - paginate if necessary
+      let allFacilities: any[] = [];
+      let facilitiesCount = 0;
+      let from = 0;
+      const pageSize = 1000;
       
-      if (sectorFilter) {
-        facilitiesQuery = facilitiesQuery.ilike("sector", sectorFilter);
-      }
+      // Keep fetching until we have all data
+      while (true) {
+        let query = supabase
+          .from("facilities")
+          .select("*", { count: 'exact' })
+          .range(from, from + pageSize - 1);
+        
+        if (sectorFilter) {
+          query = query.ilike("sector", sectorFilter);
+        }
 
-      // Fetch all facilities for status calculations
-      const { data: allFacilities, error: allFacilitiesError, count: facilitiesCount } = await facilitiesQuery;
-      if (allFacilitiesError) throw allFacilitiesError;
+        const { data, error, count } = await query;
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          allFacilities = [...allFacilities, ...data];
+        }
+        
+        if (from === 0) {
+          facilitiesCount = count || 0;
+        }
+        
+        // Break if we got less than pageSize or no more data
+        if (!data || data.length < pageSize) {
+          break;
+        }
+        
+        from += pageSize;
+      }
       
       console.log(`Dashboard data fetch - Sector filter: ${sectorFilter || 'None'}`);
-      console.log(`Fetched ${allFacilities?.length} facilities, total count: ${facilitiesCount}`);
+      console.log(`Fetched ${allFacilities.length} facilities, total count: ${facilitiesCount}`);
 
       // Helper function to parse DD/MM/YYYY date format
       const parseExpiryDate = (dateString: string | null): Date | null => {
@@ -74,9 +116,10 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       let active = 0;
       const sectorStats: Record<string, { expired: number; expiring: number; active: number; total: number }> = {};
 
-      allFacilities?.forEach((facility) => {
+      allFacilities.forEach((facility) => {
         const expiryDate = parseExpiryDate(facility.expiry_date);
-        const sector = facility.sector || "Unknown";
+        // NORMALIZE sector name to uppercase for consistent grouping
+        const sector = (facility.sector || "Unknown").toUpperCase();
 
         if (!sectorStats[sector]) {
           sectorStats[sector] = { expired: 0, expiring: 0, active: 0, total: 0 };
@@ -146,7 +189,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
 
       const totalRevenue = allPayments?.reduce((sum, p) => sum + (p.amount_paid || 0), 0) || 0;
 
-      const actualTotal = facilitiesCount || allFacilities?.length || 0;
+      const actualTotal = allFacilities.length;
       console.log(`Setting stats with totalFacilities: ${actualTotal}`);
       
       setStats({
