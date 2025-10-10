@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, CreditCard, TrendingUp, Calendar, FileText, DollarSign, Search, AlertCircle, Clock, CheckCircle } from "lucide-react";
+import { Building2, CreditCard, TrendingUp, Calendar, FileText, DollarSign, Search, AlertCircle, Clock, CheckCircle, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import FacilitySearch from "./FacilitySearch";
 import PaymentSearch from "./PaymentSearch";
@@ -24,8 +26,12 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
     expiringFacilities: 0,
     activeFacilities: 0,
     sectorBreakdown: [] as any[],
+    validFacilitiesList: [] as any[],
+    expiringFacilitiesList: [] as any[],
+    expiredFacilitiesList: [] as any[],
   });
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState<'valid' | 'expiring' | 'expired' | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -115,6 +121,9 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       let expiring = 0;
       let active = 0;
       const sectorStats: Record<string, { expired: number; expiring: number; active: number; total: number }> = {};
+      const validFacilitiesList: any[] = [];
+      const expiringFacilitiesList: any[] = [];
+      const expiredFacilitiesList: any[] = [];
 
       allFacilities.forEach((facility) => {
         const expiryDate = parseExpiryDate(facility.expiry_date);
@@ -130,18 +139,22 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           // No expiry date means active
           active++;
           sectorStats[sector].active++;
+          validFacilitiesList.push(facility);
         } else if (expiryDate < today) {
           // Expired: past expiry date
           expired++;
           sectorStats[sector].expired++;
+          expiredFacilitiesList.push(facility);
         } else if (expiryDate <= ninetyDaysFromNow) {
           // Expiring: within 90 days (60-90 days range)
           expiring++;
           sectorStats[sector].expiring++;
+          expiringFacilitiesList.push(facility);
         } else {
           // Active: more than 90 days until expiry
           active++;
           sectorStats[sector].active++;
+          validFacilitiesList.push(facility);
         }
       });
 
@@ -202,6 +215,9 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         expiringFacilities: expiring,
         activeFacilities: active,
         sectorBreakdown,
+        validFacilitiesList,
+        expiringFacilitiesList,
+        expiredFacilitiesList,
       });
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -228,6 +244,72 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       month: 'short',
       day: 'numeric',
     });
+  };
+
+  const exportToCSV = (data: any[], filename: string) => {
+    if (data.length === 0) {
+      toast({
+        title: "No data to export",
+        description: "There are no facilities in this category",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const headers = ['Facility Name', 'Sector', 'Location', 'District', 'Expiry Date', 'Effective Date', 'File Location ID'];
+    const csvContent = [
+      headers.join(','),
+      ...data.map(facility => [
+        `"${facility.name || ''}"`,
+        `"${facility.sector || ''}"`,
+        `"${facility.location || ''}"`,
+        `"${facility.district || ''}"`,
+        `"${facility.expiry_date || ''}"`,
+        `"${facility.effective_date || ''}"`,
+        `"${facility.file_location_id || ''}"`,
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Export successful",
+      description: `${data.length} facilities exported to ${filename}.csv`,
+    });
+  };
+
+  const getCurrentModalData = () => {
+    switch (modalOpen) {
+      case 'valid':
+        return stats.validFacilitiesList;
+      case 'expiring':
+        return stats.expiringFacilitiesList;
+      case 'expired':
+        return stats.expiredFacilitiesList;
+      default:
+        return [];
+    }
+  };
+
+  const getModalTitle = () => {
+    switch (modalOpen) {
+      case 'valid':
+        return 'Valid Facilities';
+      case 'expiring':
+        return 'Expiring Facilities';
+      case 'expired':
+        return 'Expired Facilities';
+      default:
+        return '';
+    }
   };
 
   if (loading) {
@@ -265,9 +347,9 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
 
       {/* Facility Status Cards */}
       <div className="grid gap-6 md:grid-cols-3">
-        <Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setModalOpen('valid')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Facilities</CardTitle>
+            <CardTitle className="text-sm font-medium">Valid Facilities</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -275,12 +357,24 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
             <p className="text-xs text-muted-foreground mt-1">
               Permits valid beyond 90 days
             </p>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="mt-3 w-full"
+              onClick={(e) => {
+                e.stopPropagation();
+                exportToCSV(stats.validFacilitiesList, 'valid-facilities');
+              }}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setModalOpen('expiring')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expiring Soon</CardTitle>
+            <CardTitle className="text-sm font-medium">Expiring Facilities</CardTitle>
             <Clock className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
@@ -288,10 +382,22 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
             <p className="text-xs text-muted-foreground mt-1">
               Expiring within 90 days
             </p>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="mt-3 w-full"
+              onClick={(e) => {
+                e.stopPropagation();
+                exportToCSV(stats.expiringFacilitiesList, 'expiring-facilities');
+              }}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setModalOpen('expired')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Expired Facilities</CardTitle>
             <AlertCircle className="h-4 w-4 text-red-500" />
@@ -301,9 +407,62 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
             <p className="text-xs text-muted-foreground mt-1">
               Permits have expired
             </p>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="mt-3 w-full"
+              onClick={(e) => {
+                e.stopPropagation();
+                exportToCSV(stats.expiredFacilitiesList, 'expired-facilities');
+              }}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
           </CardContent>
         </Card>
       </div>
+
+      {/* Facility Details Modal */}
+      <Dialog open={modalOpen !== null} onOpenChange={(open) => !open && setModalOpen(null)}>
+        <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{getModalTitle()}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {getCurrentModalData().length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">No facilities in this category</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Facility Name</TableHead>
+                    <TableHead>Sector</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>District</TableHead>
+                    <TableHead>Expiry Date</TableHead>
+                    <TableHead>Effective Date</TableHead>
+                    <TableHead>File Location ID</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {getCurrentModalData().map((facility) => (
+                    <TableRow key={facility.id}>
+                      <TableCell className="font-medium">{facility.name}</TableCell>
+                      <TableCell>{facility.sector}</TableCell>
+                      <TableCell>{facility.location}</TableCell>
+                      <TableCell>{facility.district}</TableCell>
+                      <TableCell>{facility.expiry_date || 'N/A'}</TableCell>
+                      <TableCell>{facility.effective_date || 'N/A'}</TableCell>
+                      <TableCell>{facility.file_location_id || 'N/A'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* General Stats Cards */}
       <div className="grid gap-6 md:grid-cols-3">
