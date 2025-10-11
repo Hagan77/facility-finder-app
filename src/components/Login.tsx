@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLogging, setIsLogging] = useState(false);
@@ -19,18 +19,18 @@ const Login: React.FC = () => {
     e.preventDefault();
     setIsLogging(true);
     
-    const result = await login(email, password);
+    const success = login(username, password);
     
-    if (!result.success) {
+    if (!success) {
       toast({
         title: "Login Failed",
-        description: result.error || "Invalid email or password",
+        description: "Invalid username or password",
         variant: "destructive"
       });
     } else {
       toast({
         title: "Login Successful",
-        description: "Welcome back!",
+        description: `Welcome back, ${username}!`,
       });
     }
     setIsLogging(false);
@@ -50,13 +50,13 @@ const Login: React.FC = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="your.email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>

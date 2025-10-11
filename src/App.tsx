@@ -11,15 +11,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { isAuthenticated, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
+  const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
     return (

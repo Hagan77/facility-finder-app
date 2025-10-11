@@ -97,8 +97,8 @@ const Index = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    logout();
   };
 
   // If user is admin, show full admin dashboard
