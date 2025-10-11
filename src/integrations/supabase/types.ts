@@ -24,7 +24,7 @@ export type Database = {
           id: number
           location: string | null
           name: string | null
-          sector: string | null
+          sector: Database["public"]["Enums"]["sector_type"] | null
         }
         Insert: {
           created_at?: string
@@ -35,7 +35,7 @@ export type Database = {
           id?: number
           location?: string | null
           name?: string | null
-          sector?: string | null
+          sector?: Database["public"]["Enums"]["sector_type"] | null
         }
         Update: {
           created_at?: string
@@ -46,7 +46,7 @@ export type Database = {
           id?: number
           location?: string | null
           name?: string | null
-          sector?: string | null
+          sector?: Database["public"]["Enums"]["sector_type"] | null
         }
         Relationships: []
       }
@@ -83,15 +83,82 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          sector: Database["public"]["Enums"]["sector_type"] | null
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          sector?: Database["public"]["Enums"]["sector_type"] | null
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          sector?: Database["public"]["Enums"]["sector_type"] | null
+          updated_at?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_sector: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["sector_type"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "sector_head" | "user"
+      sector_type:
+        | "hospitality"
+        | "health"
+        | "mining"
+        | "infrastructure"
+        | "education"
+        | "agriculture"
+        | "manufacturing"
+        | "tourism"
+        | "finance"
+        | "transportation"
+        | "energy"
+        | "chemicals"
+        | "telecommunication"
+        | "quarry"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -218,6 +285,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "sector_head", "user"],
+      sector_type: [
+        "hospitality",
+        "health",
+        "mining",
+        "infrastructure",
+        "education",
+        "agriculture",
+        "manufacturing",
+        "tourism",
+        "finance",
+        "transportation",
+        "energy",
+        "chemicals",
+        "telecommunication",
+        "quarry",
+      ],
+    },
   },
 } as const

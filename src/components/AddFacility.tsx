@@ -9,9 +9,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Building, Search, CreditCard, Info, Database } from "lucide-react";
 
+type SectorType = "agriculture" | "chemicals" | "education" | "energy" | "finance" | "health" | "hospitality" | "infrastructure" | "manufacturing" | "mining" | "quarry" | "telecommunication" | "tourism" | "transportation";
+
 const AddFacility = () => {
   const [databaseType, setDatabaseType] = useState<"permit" | "payment">("permit");
-  const [facilityFormData, setFacilityFormData] = useState({
+  const [facilityFormData, setFacilityFormData] = useState<{
+    name: string;
+    location: string;
+    district: string;
+    sector: SectorType | "";
+    file_location_id: string;
+    effective_date: string;
+    expiry_date: string;
+  }>({
     name: "",
     location: "",
     district: "",
@@ -51,10 +61,10 @@ const AddFacility = () => {
     e.preventDefault();
     
     if (databaseType === "permit") {
-      if (!facilityFormData.name || !facilityFormData.location || !facilityFormData.district || !facilityFormData.file_location_id || !facilityFormData.effective_date || !facilityFormData.expiry_date) {
+      if (!facilityFormData.name || !facilityFormData.location || !facilityFormData.district || !facilityFormData.sector || !facilityFormData.file_location_id || !facilityFormData.effective_date || !facilityFormData.expiry_date) {
         toast({
           title: "Please fill in all required fields",
-          description: "Name, location, district, file location ID, and dates are required",
+          description: "All fields including sector are required",
           variant: "destructive",
         });
         return;
@@ -74,9 +84,22 @@ const AddFacility = () => {
 
     try {
       if (databaseType === "permit") {
+        // Only insert if sector is not empty
+        if (!facilityFormData.sector) {
+          throw new Error("Sector is required");
+        }
+
         const { error } = await supabase
           .from("facilities")
-          .insert([facilityFormData]);
+          .insert([{
+            name: facilityFormData.name,
+            location: facilityFormData.location,
+            district: facilityFormData.district,
+            sector: facilityFormData.sector as SectorType,
+            file_location_id: facilityFormData.file_location_id,
+            effective_date: facilityFormData.effective_date,
+            expiry_date: facilityFormData.expiry_date,
+          }]);
 
         if (error) {
           console.error("Facility insert error:", error);
@@ -237,14 +260,31 @@ const AddFacility = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sector">Sector (Optional)</Label>
-                  <Input
-                    id="sector"
-                    name="sector"
-                    value={facilityFormData.sector}
-                    onChange={handleFacilityInputChange}
-                    placeholder="e.g., Mining, Agriculture, Manufacturing"
-                  />
+                  <Label htmlFor="sector">Sector</Label>
+                  <Select 
+                    value={facilityFormData.sector} 
+                    onValueChange={(value: SectorType) => setFacilityFormData(prev => ({ ...prev, sector: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select sector" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hospitality">Hospitality</SelectItem>
+                      <SelectItem value="health">Health</SelectItem>
+                      <SelectItem value="mining">Mining</SelectItem>
+                      <SelectItem value="infrastructure">Infrastructure</SelectItem>
+                      <SelectItem value="education">Education</SelectItem>
+                      <SelectItem value="agriculture">Agriculture</SelectItem>
+                      <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                      <SelectItem value="tourism">Tourism</SelectItem>
+                      <SelectItem value="finance">Finance</SelectItem>
+                      <SelectItem value="transportation">Transportation</SelectItem>
+                      <SelectItem value="energy">Energy</SelectItem>
+                      <SelectItem value="chemicals">Chemicals</SelectItem>
+                      <SelectItem value="telecommunication">Telecommunication</SelectItem>
+                      <SelectItem value="quarry">Quarry</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">

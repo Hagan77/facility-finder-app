@@ -9,12 +9,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Search, CreditCard, Plus } from "lucide-react";
 
 const Index = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, userProfile, logout } = useAuth();
   const [currentView, setCurrentView] = useState<'main' | 'permit' | 'payment' | 'add'>('main');
   
-  // Check if current user is a director or Eugene
-  const isDirector = currentUser === 'Head1' || currentUser === 'Head2';
-  const isEugene = currentUser === 'Eugene';
+  // Check user role and sector
+  const isAdmin = userProfile?.role === 'admin';
+  const isSectorHead = userProfile?.role === 'sector_head';
+  const userSector = userProfile?.sector;
 
   const renderMainMenu = () => (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -96,12 +97,12 @@ const Index = () => {
     }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
   };
 
-  // If user is a director, show admin dashboard
-  if (isDirector) {
+  // If user is admin, show full admin dashboard
+  if (isAdmin) {
     return (
       <div className="min-h-screen bg-background">
         {/* Top Navigation Bar */}
@@ -124,8 +125,10 @@ const Index = () => {
     );
   }
 
-  // If user is Eugene, show hospitality dashboard
-  if (isEugene) {
+  // If user is a sector head, show their sector-specific dashboard
+  if (isSectorHead && userSector) {
+    const sectorTitle = `${userSector.charAt(0).toUpperCase() + userSector.slice(1)} Sector Dashboard`;
+    
     return (
       <div className="min-h-screen bg-background">
         {/* Top Navigation Bar */}
@@ -142,7 +145,10 @@ const Index = () => {
 
         {/* Main Content */}
         <div className="container mx-auto py-8 px-4">
-          <AdminDashboard sectorFilter="HOSPITALITY" title="Hospitality Sector Dashboard" />
+          <AdminDashboard 
+            sectorFilter={userSector.toUpperCase()} 
+            title={sectorTitle} 
+          />
         </div>
       </div>
     );
