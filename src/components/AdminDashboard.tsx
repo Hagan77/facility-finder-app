@@ -29,6 +29,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
     validFacilitiesList: [] as any[],
     expiringFacilitiesList: [] as any[],
     expiredFacilitiesList: [] as any[],
+    totalFacilitiesList: [] as any[],
   });
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState<'valid' | 'expiring' | 'expired' | null>(null);
@@ -220,6 +221,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         validFacilitiesList,
         expiringFacilitiesList,
         expiredFacilitiesList,
+        totalFacilitiesList: allFacilities,
       });
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -478,6 +480,15 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
             <p className="text-xs text-muted-foreground mt-1">
               Registered facilities
             </p>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="mt-3 w-full"
+              onClick={() => exportToCSV(stats.totalFacilitiesList, 'total-facilities')}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
           </CardContent>
         </Card>
 
