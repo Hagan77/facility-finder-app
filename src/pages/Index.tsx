@@ -146,7 +146,7 @@ const Index = () => {
         {/* Main Content */}
         <div className="container mx-auto py-8 px-4">
           <AdminDashboard 
-            sectorFilter={userSector.toUpperCase()} 
+            sectorFilter={userSector} 
             title={sectorTitle} 
           />
         </div>

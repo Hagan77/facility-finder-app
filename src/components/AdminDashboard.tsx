@@ -77,7 +77,8 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           .range(from, from + pageSize - 1);
         
         if (sectorFilter) {
-          query = query.ilike("sector", sectorFilter);
+          // Use exact match for enum type, case-insensitive by converting to lowercase
+          query = query.eq("sector", sectorFilter.toLowerCase() as any);
         }
 
         const { data, error, count } = await query;
@@ -171,7 +172,8 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         .limit(5);
       
       if (sectorFilter) {
-        recentQuery = recentQuery.ilike("sector", sectorFilter);
+        // Use exact match for enum type, case-insensitive by converting to lowercase
+        recentQuery = recentQuery.eq("sector", sectorFilter.toLowerCase() as any);
       }
 
       const { data: recentFacilities, error: facilityError } = await recentQuery;
