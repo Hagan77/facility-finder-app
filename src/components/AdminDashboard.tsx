@@ -180,26 +180,44 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       const { data: recentFacilities, error: facilityError } = await recentQuery;
       if (facilityError) throw facilityError;
 
-      // Fetch total count of payments
-      const { count: paymentsCount, error: paymentsCountError } = await supabase
+      // Fetch total count of payments - filter by sector if applicable
+      let paymentsCountQuery = supabase
         .from("payments")
         .select("*", { count: "exact", head: true });
+      
+      if (sectorFilter) {
+        paymentsCountQuery = paymentsCountQuery.ilike("sector", sectorFilter);
+      }
+      
+      const { count: paymentsCount, error: paymentsCountError } = await paymentsCountQuery;
 
       if (paymentsCountError) throw paymentsCountError;
 
-      // Fetch ALL payments to calculate total revenue
-      const { data: allPayments, error: allPaymentsError } = await supabase
+      // Fetch ALL payments to calculate total revenue - filter by sector if applicable
+      let allPaymentsQuery = supabase
         .from("payments")
         .select("amount_paid");
+      
+      if (sectorFilter) {
+        allPaymentsQuery = allPaymentsQuery.ilike("sector", sectorFilter);
+      }
+      
+      const { data: allPayments, error: allPaymentsError } = await allPaymentsQuery;
 
       if (allPaymentsError) throw allPaymentsError;
 
-      // Fetch recent payments for display
-      const { data: recentPayments, error: paymentError } = await supabase
+      // Fetch recent payments for display - filter by sector if applicable
+      let recentPaymentsQuery = supabase
         .from("payments")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(5);
+      
+      if (sectorFilter) {
+        recentPaymentsQuery = recentPaymentsQuery.ilike("sector", sectorFilter);
+      }
+      
+      const { data: recentPayments, error: paymentError } = await recentPaymentsQuery;
 
       if (paymentError) throw paymentError;
 
