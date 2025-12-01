@@ -159,6 +159,19 @@ export type Database = {
         | "chemicals"
         | "telecommunication"
         | "quarry"
+        | "QUARRY"
+        | "MANUFACTURING"
+        | "INFRASTRUCTURE"
+        | "ENERGY"
+        | "HEALTH"
+        | "HOSPITALITY"
+        | "MINING"
+        | "SMALL SCALE MINING"
+        | "small scale mining"
+        | "mines and quarry"
+        | "chemicals & Pesticide"
+        | "chemicals & pesticide"
+        | "chemicals & pesticides"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -302,6 +315,19 @@ export const Constants = {
         "chemicals",
         "telecommunication",
         "quarry",
+        "QUARRY",
+        "MANUFACTURING",
+        "INFRASTRUCTURE",
+        "ENERGY",
+        "HEALTH",
+        "HOSPITALITY",
+        "MINING",
+        "SMALL SCALE MINING",
+        "small scale mining",
+        "mines and quarry",
+        "chemicals & Pesticide",
+        "chemicals & pesticide",
+        "chemicals & pesticides",
       ],
     },
   },
