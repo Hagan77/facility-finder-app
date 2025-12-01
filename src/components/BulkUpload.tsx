@@ -5,69 +5,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import { Upload, FileSpreadsheet, AlertCircle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from 'xlsx';
-
-interface ValidationError {
-  row: number;
-  field: string;
-  message: string;
-}
-
-interface ValidatedData {
-  data: any;
-  isValid: boolean;
-  errors: ValidationError[];
-}
 
 const BulkUpload = () => {
   const [facilitiesFile, setFacilitiesFile] = useState<File | null>(null);
   const [paymentsFile, setPaymentsFile] = useState<File | null>(null);
-  const [facilitiesData, setFacilitiesData] = useState<ValidatedData[]>([]);
-  const [paymentsData, setPaymentsData] = useState<ValidatedData[]>([]);
+  const [facilitiesData, setFacilitiesData] = useState<any[]>([]);
+  const [paymentsData, setPaymentsData] = useState<any[]>([]);
   const [facilitiesUploading, setFacilitiesUploading] = useState(false);
   const [paymentsUploading, setPaymentsUploading] = useState(false);
   const { toast } = useToast();
-
-  const validateFacility = (facility: any, index: number): ValidatedData => {
-    const errors: ValidationError[] = [];
-    
-    if (!facility.name || facility.name.trim() === '') {
-      errors.push({ row: index + 1, field: 'name', message: 'Facility name is required' });
-    }
-    
-    return {
-      data: facility,
-      isValid: errors.length === 0,
-      errors
-    };
-  };
-
-  const validatePayment = (payment: any, index: number): ValidatedData => {
-    const errors: ValidationError[] = [];
-    
-    if (!payment.name || payment.name.trim() === '') {
-      errors.push({ row: index + 1, field: 'name', message: 'Name is required' });
-    }
-    if (!payment.location || payment.location.trim() === '') {
-      errors.push({ row: index + 1, field: 'location', message: 'Location is required' });
-    }
-    if (!payment.amount_paid || isNaN(payment.amount_paid) || payment.amount_paid <= 0) {
-      errors.push({ row: index + 1, field: 'amount_paid', message: 'Valid amount is required' });
-    }
-    if (!payment.payment_date || payment.payment_date.trim() === '') {
-      errors.push({ row: index + 1, field: 'payment_date', message: 'Payment date is required' });
-    }
-    
-    return {
-      data: payment,
-      isValid: errors.length === 0,
-      errors
-    };
-  };
 
   const handleFacilitiesFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -95,28 +45,21 @@ const BulkUpload = () => {
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet);
         
-        // Map and validate the Excel data
-        const validatedData = json.map((row: any, index: number) => {
-          const mappedRow = {
-            name: row['Facility Name'] || row['name'] || '',
-            sector: row['Sector'] || row['sector'] || '',
-            location: row['Location'] || row['location'] || '',
-            district: row['District'] || row['district'] || '',
-            expiry_date: row['Expiry Date'] || row['expiry_date'] || '',
-            effective_date: row['Effective Date'] || row['effective_date'] || '',
-            file_location_id: row['File Location ID'] || row['file_location_id'] || '',
-          };
-          return validateFacility(mappedRow, index);
-        });
+        // Map the Excel columns to database columns
+        const mappedData = json.map((row: any) => ({
+          name: row['Facility Name'] || row['name'] || '',
+          sector: row['Sector'] || row['sector'] || '',
+          location: row['Location'] || row['location'] || '',
+          district: row['District'] || row['district'] || '',
+          expiry_date: row['Expiry Date'] || row['expiry_date'] || '',
+          effective_date: row['Effective Date'] || row['effective_date'] || '',
+          file_location_id: row['File Location ID'] || row['file_location_id'] || '',
+        }));
         
-        const validCount = validatedData.filter(d => d.isValid).length;
-        const invalidCount = validatedData.length - validCount;
-        
-        setFacilitiesData(validatedData);
+        setFacilitiesData(mappedData);
         toast({
           title: "File parsed successfully",
-          description: `Found ${validCount} valid facilities${invalidCount > 0 ? ` and ${invalidCount} invalid rows` : ''}`,
-          variant: invalidCount > 0 ? "destructive" : "default",
+          description: `Found ${mappedData.length} facilities to upload`,
         });
       } catch (error) {
         toast({
@@ -139,27 +82,20 @@ const BulkUpload = () => {
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet);
         
-        // Map and validate the Excel data
-        const validatedData = json.map((row: any, index: number) => {
-          const mappedRow = {
-            name: row['Name'] || row['name'] || '',
-            sector: row['Sector'] || row['sector'] || '',
-            location: row['Location'] || row['location'] || '',
-            category: row['Category'] || row['category'] || '',
-            amount_paid: parseFloat(row['Amount Paid'] || row['amount_paid'] || '0'),
-            payment_date: row['Payment Date'] || row['payment_date'] || '',
-          };
-          return validatePayment(mappedRow, index);
-        });
+        // Map the Excel columns to database columns
+        const mappedData = json.map((row: any) => ({
+          name: row['Name'] || row['name'] || '',
+          sector: row['Sector'] || row['sector'] || '',
+          location: row['Location'] || row['location'] || '',
+          category: row['Category'] || row['category'] || '',
+          amount_paid: parseFloat(row['Amount Paid'] || row['amount_paid'] || '0'),
+          payment_date: row['Payment Date'] || row['payment_date'] || '',
+        }));
         
-        const validCount = validatedData.filter(d => d.isValid).length;
-        const invalidCount = validatedData.length - validCount;
-        
-        setPaymentsData(validatedData);
+        setPaymentsData(mappedData);
         toast({
           title: "File parsed successfully",
-          description: `Found ${validCount} valid payments${invalidCount > 0 ? ` and ${invalidCount} invalid rows` : ''}`,
-          variant: invalidCount > 0 ? "destructive" : "default",
+          description: `Found ${mappedData.length} payments to upload`,
         });
       } catch (error) {
         toast({
@@ -173,12 +109,10 @@ const BulkUpload = () => {
   };
 
   const uploadFacilities = async () => {
-    const validData = facilitiesData.filter(d => d.isValid);
-    
-    if (validData.length === 0) {
+    if (facilitiesData.length === 0) {
       toast({
-        title: "No valid data to upload",
-        description: "Please fix validation errors first",
+        title: "No data to upload",
+        description: "Please select and parse an Excel file first",
         variant: "destructive",
       });
       return;
@@ -186,16 +120,15 @@ const BulkUpload = () => {
 
     setFacilitiesUploading(true);
     try {
-      const dataToInsert = validData.map(v => v.data);
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('facilities')
-        .upsert(dataToInsert, { onConflict: 'name' });
+        .insert(facilitiesData);
 
       if (error) throw error;
 
       toast({
         title: "Upload successful",
-        description: `${validData.length} facilities uploaded successfully`,
+        description: `${facilitiesData.length} facilities uploaded successfully`,
       });
       
       // Reset
@@ -215,12 +148,10 @@ const BulkUpload = () => {
   };
 
   const uploadPayments = async () => {
-    const validData = paymentsData.filter(d => d.isValid);
-    
-    if (validData.length === 0) {
+    if (paymentsData.length === 0) {
       toast({
-        title: "No valid data to upload",
-        description: "Please fix validation errors first",
+        title: "No data to upload",
+        description: "Please select and parse an Excel file first",
         variant: "destructive",
       });
       return;
@@ -228,16 +159,15 @@ const BulkUpload = () => {
 
     setPaymentsUploading(true);
     try {
-      const dataToInsert = validData.map(v => v.data);
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('payments')
-        .insert(dataToInsert);
+        .insert(paymentsData);
 
       if (error) throw error;
 
       toast({
         title: "Upload successful",
-        description: `${validData.length} payments uploaded successfully`,
+        description: `${paymentsData.length} payments uploaded successfully`,
       });
       
       // Reset
@@ -293,17 +223,9 @@ const BulkUpload = () => {
 
               {facilitiesData.length > 0 && (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle className="h-4 w-4" />
-                      <span>{facilitiesData.filter(d => d.isValid).length} valid</span>
-                    </div>
-                    {facilitiesData.filter(d => !d.isValid).length > 0 && (
-                      <div className="flex items-center gap-2 text-red-600">
-                        <XCircle className="h-4 w-4" />
-                        <span>{facilitiesData.filter(d => !d.isValid).length} invalid</span>
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span>{facilitiesData.length} facilities ready to upload</span>
                   </div>
 
                   <div className="border rounded-lg overflow-hidden">
@@ -311,7 +233,6 @@ const BulkUpload = () => {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Status</TableHead>
                             <TableHead>Facility Name</TableHead>
                             <TableHead>Sector</TableHead>
                             <TableHead>Location</TableHead>
@@ -320,27 +241,13 @@ const BulkUpload = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {facilitiesData.slice(0, 10).map((validated, index) => (
-                            <TableRow key={index} className={!validated.isValid ? "bg-destructive/10" : ""}>
-                              <TableCell>
-                                {validated.isValid ? (
-                                  <Badge variant="default" className="bg-green-600">Valid</Badge>
-                                ) : (
-                                  <Badge variant="destructive">Invalid</Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {validated.data.name}
-                                {validated.errors.some(e => e.field === 'name') && (
-                                  <p className="text-xs text-destructive mt-1">
-                                    {validated.errors.find(e => e.field === 'name')?.message}
-                                  </p>
-                                )}
-                              </TableCell>
-                              <TableCell>{validated.data.sector}</TableCell>
-                              <TableCell>{validated.data.location}</TableCell>
-                              <TableCell>{validated.data.district}</TableCell>
-                              <TableCell>{validated.data.expiry_date}</TableCell>
+                          {facilitiesData.slice(0, 10).map((facility, index) => (
+                            <TableRow key={index}>
+                              <TableCell>{facility.name}</TableCell>
+                              <TableCell>{facility.sector}</TableCell>
+                              <TableCell>{facility.location}</TableCell>
+                              <TableCell>{facility.district}</TableCell>
+                              <TableCell>{facility.expiry_date}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -355,11 +262,11 @@ const BulkUpload = () => {
 
                   <Button 
                     onClick={uploadFacilities} 
-                    disabled={facilitiesUploading || facilitiesData.filter(d => d.isValid).length === 0}
+                    disabled={facilitiesUploading}
                     className="w-full"
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    {facilitiesUploading ? 'Uploading...' : `Upload ${facilitiesData.filter(d => d.isValid).length} Valid Facilities`}
+                    {facilitiesUploading ? 'Uploading...' : `Upload ${facilitiesData.length} Facilities`}
                   </Button>
                 </div>
               )}
@@ -391,17 +298,9 @@ const BulkUpload = () => {
 
               {paymentsData.length > 0 && (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle className="h-4 w-4" />
-                      <span>{paymentsData.filter(d => d.isValid).length} valid</span>
-                    </div>
-                    {paymentsData.filter(d => !d.isValid).length > 0 && (
-                      <div className="flex items-center gap-2 text-red-600">
-                        <XCircle className="h-4 w-4" />
-                        <span>{paymentsData.filter(d => !d.isValid).length} invalid</span>
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span>{paymentsData.length} payments ready to upload</span>
                   </div>
 
                   <div className="border rounded-lg overflow-hidden">
@@ -409,7 +308,6 @@ const BulkUpload = () => {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Status</TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Sector</TableHead>
                             <TableHead>Location</TableHead>
@@ -419,49 +317,14 @@ const BulkUpload = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {paymentsData.slice(0, 10).map((validated, index) => (
-                            <TableRow key={index} className={!validated.isValid ? "bg-destructive/10" : ""}>
-                              <TableCell>
-                                {validated.isValid ? (
-                                  <Badge variant="default" className="bg-green-600">Valid</Badge>
-                                ) : (
-                                  <Badge variant="destructive">Invalid</Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {validated.data.name}
-                                {validated.errors.some(e => e.field === 'name') && (
-                                  <p className="text-xs text-destructive mt-1">
-                                    {validated.errors.find(e => e.field === 'name')?.message}
-                                  </p>
-                                )}
-                              </TableCell>
-                              <TableCell>{validated.data.sector}</TableCell>
-                              <TableCell>
-                                {validated.data.location}
-                                {validated.errors.some(e => e.field === 'location') && (
-                                  <p className="text-xs text-destructive mt-1">
-                                    {validated.errors.find(e => e.field === 'location')?.message}
-                                  </p>
-                                )}
-                              </TableCell>
-                              <TableCell>{validated.data.category}</TableCell>
-                              <TableCell>
-                                ₵{validated.data.amount_paid.toFixed(2)}
-                                {validated.errors.some(e => e.field === 'amount_paid') && (
-                                  <p className="text-xs text-destructive mt-1">
-                                    {validated.errors.find(e => e.field === 'amount_paid')?.message}
-                                  </p>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {validated.data.payment_date}
-                                {validated.errors.some(e => e.field === 'payment_date') && (
-                                  <p className="text-xs text-destructive mt-1">
-                                    {validated.errors.find(e => e.field === 'payment_date')?.message}
-                                  </p>
-                                )}
-                              </TableCell>
+                          {paymentsData.slice(0, 10).map((payment, index) => (
+                            <TableRow key={index}>
+                              <TableCell>{payment.name}</TableCell>
+                              <TableCell>{payment.sector}</TableCell>
+                              <TableCell>{payment.location}</TableCell>
+                              <TableCell>{payment.category}</TableCell>
+                              <TableCell>₵{payment.amount_paid.toFixed(2)}</TableCell>
+                              <TableCell>{payment.payment_date}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -476,11 +339,11 @@ const BulkUpload = () => {
 
                   <Button 
                     onClick={uploadPayments} 
-                    disabled={paymentsUploading || paymentsData.filter(d => d.isValid).length === 0}
+                    disabled={paymentsUploading}
                     className="w-full"
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    {paymentsUploading ? 'Uploading...' : `Upload ${paymentsData.filter(d => d.isValid).length} Valid Payments`}
+                    {paymentsUploading ? 'Uploading...' : `Upload ${paymentsData.length} Payments`}
                   </Button>
                 </div>
               )}
