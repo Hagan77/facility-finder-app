@@ -5,10 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, CreditCard, TrendingUp, Calendar, FileText, Search, AlertCircle, Clock, CheckCircle, Download } from "lucide-react";
+import { Building2, CreditCard, TrendingUp, Calendar, FileText, Search, AlertCircle, Clock, CheckCircle, Download, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import FacilitySearch from "./FacilitySearch";
 import PaymentSearch from "./PaymentSearch";
+import BulkUpload from "./BulkUpload";
 
 interface AdminDashboardProps {
   sectorFilter?: string;
@@ -353,7 +354,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="facility-search">
             <Search className="w-4 h-4 mr-2" />
@@ -363,6 +364,12 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
             <Search className="w-4 h-4 mr-2" />
             Payment Search
           </TabsTrigger>
+          {!sectorFilter && (
+            <TabsTrigger value="bulk-upload">
+              <Upload className="w-4 h-4 mr-2" />
+              Bulk Upload
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 mt-6">
@@ -665,6 +672,12 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         <TabsContent value="payment-search" className="mt-6">
           <PaymentSearch />
         </TabsContent>
+
+        {!sectorFilter && (
+          <TabsContent value="bulk-upload" className="mt-6">
+            <BulkUpload />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
