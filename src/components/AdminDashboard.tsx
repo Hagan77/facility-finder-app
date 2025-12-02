@@ -354,20 +354,22 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="facility-search">
-            <Search className="w-4 h-4 mr-2" />
-            Facility Search
+        <TabsList className={`grid w-full ${!sectorFilter ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3'} gap-1 h-auto p-1`}>
+          <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+            Overview
           </TabsTrigger>
-          <TabsTrigger value="payment-search">
-            <Search className="w-4 h-4 mr-2" />
-            Payment Search
+          <TabsTrigger value="facility-search" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+            <Search className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+            <span className="truncate">Facility Search</span>
+          </TabsTrigger>
+          <TabsTrigger value="payment-search" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+            <Search className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+            <span className="truncate">Payment Search</span>
           </TabsTrigger>
           {!sectorFilter && (
-            <TabsTrigger value="bulk-upload">
-              <Upload className="w-4 h-4 mr-2" />
-              Bulk Upload
+            <TabsTrigger value="bulk-upload" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+              <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+              <span className="truncate">Bulk Upload</span>
             </TabsTrigger>
           )}
         </TabsList>
