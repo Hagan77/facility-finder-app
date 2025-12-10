@@ -37,7 +37,7 @@ const getFacilityStatus = (expiryDateStr: string): 'valid' | 'expiring' | 'expir
   const ninetyDaysFromNow = new Date(today);
   ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
   
-  if (expiryDate < today) return 'expired';
+  if (expiryDate <= today) return 'expired';
   if (expiryDate <= ninetyDaysFromNow) return 'expiring';
   return 'valid';
 };
