@@ -69,7 +69,70 @@ const SuperAdminDashboard = () => {
   const [allPayments, setAllPayments] = useState<any[]>([]);
   const [facilitySearchTerm, setFacilitySearchTerm] = useState("");
   const [paymentSearchTerm, setPaymentSearchTerm] = useState("");
+  const [exportSector, setExportSector] = useState<string>("all");
+  const [exportStatus, setExportStatus] = useState<string>("all");
   const { toast } = useToast();
+
+  // Helper to parse DD/MM/YYYY format dates
+  const parseExpiryDate = (dateString: string | null): Date | null => {
+    if (!dateString) return null;
+    const parts = dateString.split('/');
+    if (parts.length !== 3) return null;
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const year = parseInt(parts[2], 10);
+    if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+    return new Date(year, month, day);
+  };
+
+  // Get unique sectors from facilities
+  const getUniqueSectors = (): string[] => {
+    const sectors = new Set<string>();
+    allFacilities.forEach(f => {
+      if (f.sector) sectors.add(f.sector.toUpperCase());
+    });
+    return Array.from(sectors).sort();
+  };
+
+  // Get facility status
+  const getFacilityStatus = (facility: any): 'valid' | 'expiring' | 'expired' => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const ninetyDaysFromNow = new Date(today);
+    ninetyDaysFromNow.setDate(today.getDate() + 90);
+    
+    const expiryDate = parseExpiryDate(facility.expiry_date);
+    
+    if (!expiryDate) return 'valid';
+    if (expiryDate <= today) return 'expired';
+    if (expiryDate <= ninetyDaysFromNow) return 'expiring';
+    return 'valid';
+  };
+
+  // Filter facilities for export based on sector and status
+  const getFilteredFacilitiesForExport = (): any[] => {
+    let filtered = [...allFacilities];
+    
+    if (exportSector !== "all") {
+      filtered = filtered.filter(f => 
+        f.sector?.toUpperCase() === exportSector.toUpperCase()
+      );
+    }
+    
+    if (exportStatus !== "all") {
+      filtered = filtered.filter(f => getFacilityStatus(f) === exportStatus);
+    }
+    
+    return filtered;
+  };
+
+  // Filter payments for export based on sector
+  const getFilteredPaymentsForExport = (): any[] => {
+    if (exportSector === "all") return allPayments;
+    return allPayments.filter(p => 
+      p.sector?.toUpperCase() === exportSector.toUpperCase()
+    );
+  };
 
   useEffect(() => {
     fetchDashboardData();
@@ -125,13 +188,6 @@ const SuperAdminDashboard = () => {
         if (!data || data.length < pageSize) break;
         from += pageSize;
       }
-
-      const parseExpiryDate = (dateString: string | null): Date | null => {
-        if (!dateString) return null;
-        const parts = dateString.split('/');
-        if (parts.length !== 3) return null;
-        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-      };
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -542,6 +598,88 @@ const SuperAdminDashboard = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Advanced Export */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Download className="h-5 w-5" />
+                Advanced Export
+              </CardTitle>
+              <CardDescription>Export facilities by sector and status, or payments by sector</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2">
+                {/* Filters */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Filter by Sector</Label>
+                    <Select value={exportSector} onValueChange={setExportSector}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select sector" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Sectors</SelectItem>
+                        {getUniqueSectors().map((sector) => (
+                          <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Filter by Status (Facilities only)</Label>
+                    <Select value={exportStatus} onValueChange={setExportStatus}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Statuses</SelectItem>
+                        <SelectItem value="valid">Valid Only</SelectItem>
+                        <SelectItem value="expiring">Expiring Only</SelectItem>
+                        <SelectItem value="expired">Expired Only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {/* Export Buttons */}
+                <div className="space-y-4">
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                    <p className="text-sm font-medium">
+                      Facilities to export: <span className="text-primary font-bold">{getFilteredFacilitiesForExport().length}</span>
+                    </p>
+                    <Button 
+                      className="w-full" 
+                      onClick={() => {
+                        const data = getFilteredFacilitiesForExport();
+                        const filename = `facilities-${exportSector === 'all' ? 'all-sectors' : exportSector.toLowerCase()}-${exportStatus === 'all' ? 'all-status' : exportStatus}`;
+                        exportToCSV(data, filename, 'facility');
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Export Filtered Facilities
+                    </Button>
+                  </div>
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                    <p className="text-sm font-medium">
+                      Payments to export: <span className="text-primary font-bold">{getFilteredPaymentsForExport().length}</span>
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      className="w-full" 
+                      onClick={() => {
+                        const data = getFilteredPaymentsForExport();
+                        const filename = `payments-${exportSector === 'all' ? 'all-sectors' : exportSector.toLowerCase()}`;
+                        exportToCSV(data, filename, 'payment');
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Export Filtered Payments
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Sector Breakdown */}
           <Card>
