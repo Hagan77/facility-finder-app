@@ -5,6 +5,7 @@ import FacilitySearch from "@/components/FacilitySearch";
 import PaymentSearch from "@/components/PaymentSearch";
 import AddFacility from "@/components/AddFacility";
 import AdminDashboard from "@/components/AdminDashboard";
+import SuperAdminDashboard from "@/components/SuperAdminDashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Search, CreditCard, Plus } from "lucide-react";
 
@@ -101,7 +102,34 @@ const Index = () => {
     logout();
   };
 
-  // If user is admin, show full admin dashboard
+  // Check if user is the super admin (admin/admin123)
+  const isSuperAdmin = isAdmin && currentUser === 'admin';
+
+  // If user is the super admin, show enhanced SuperAdminDashboard
+  if (isSuperAdmin) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Top Navigation Bar */}
+        <nav className="border-b bg-background">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Welcome, Super Admin</span>
+              <Button variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
+            </div>
+          </div>
+        </nav>
+
+        {/* Main Content */}
+        <div className="container mx-auto py-8 px-4">
+          <SuperAdminDashboard />
+        </div>
+      </div>
+    );
+  }
+
+  // If user is a regular admin (Head1, Head2), show standard admin dashboard
   if (isAdmin) {
     return (
       <div className="min-h-screen bg-background">
