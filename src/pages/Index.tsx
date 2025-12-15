@@ -19,39 +19,39 @@ const Index = () => {
   const userSector = userProfile?.sector;
 
   const renderMainMenu = () => (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6 px-2 sm:px-0">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4">Facility Management System</h1>
-        <p className="text-xl text-muted-foreground">Choose an option to continue</p>
+        <h1 className="text-2xl sm:text-4xl font-bold mb-4">Facility Management System</h1>
+        <p className="text-lg sm:text-xl text-muted-foreground">Choose an option to continue</p>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setCurrentView('permit')}>
-          <CardHeader className="text-center">
-            <Search className="w-12 h-12 mx-auto mb-4 text-primary" />
-            <CardTitle className="text-xl">Check Permit Status</CardTitle>
+          <CardHeader className="text-center p-4 sm:p-6">
+            <Search className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-primary" />
+            <CardTitle className="text-lg sm:text-xl">Check Permit Status</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-center">
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+            <p className="text-sm sm:text-base text-muted-foreground text-center">
               Search and view facility permit information and records
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setCurrentView('payment')}>
-          <CardHeader className="text-center">
-            <CreditCard className="w-12 h-12 mx-auto mb-4 text-primary" />
-            <CardTitle className="text-xl">Check Payment Status</CardTitle>
+          <CardHeader className="text-center p-4 sm:p-6">
+            <CreditCard className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-primary" />
+            <CardTitle className="text-lg sm:text-xl">Check Payment Status</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-center">
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+            <p className="text-sm sm:text-base text-muted-foreground text-center">
               Search and view payment records and transaction history
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="text-center mt-8">
+      <div className="text-center mt-6 sm:mt-8">
         <Button 
           variant="outline" 
           onClick={() => setCurrentView('add')}
