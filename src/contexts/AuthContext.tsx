@@ -6,6 +6,7 @@ const validCredentials = [
   { username: "admin", password: "admin123", role: "admin", sector: null },
   { username: "user", password: "password", role: "user", sector: null },
   { username: "Eugene", password: "Dastan", role: "sector_head", sector: "hospitality" },
+  { username: "Hospitality Head", password: "Hospitality123", role: "sector_head", sector: "hospitality" },
   { username: "Hagan", password: "Dunstan", role: "user", sector: null },
   { username: "Zenora1", password: "Max1", role: "user", sector: null },
   { username: "Head1", password: "Director1", role: "admin", sector: null },

@@ -24,6 +24,7 @@ const systemUsers = [
   { username: "admin", role: "admin", sector: null },
   { username: "user", role: "user", sector: null },
   { username: "Eugene", role: "sector_head", sector: "hospitality" },
+  { username: "Hospitality Head", role: "sector_head", sector: "hospitality" },
   { username: "Hagan", role: "user", sector: null },
   { username: "Zenora1", role: "user", sector: null },
   { username: "Head1", role: "admin", sector: null },
