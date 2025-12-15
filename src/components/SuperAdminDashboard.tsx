@@ -73,15 +73,41 @@ const SuperAdminDashboard = () => {
   const [exportStatus, setExportStatus] = useState<string>("all");
   const { toast } = useToast();
 
-  // Helper to parse DD/MM/YYYY format dates
+  // Helper to parse dates - handles multiple formats (M/D/YYYY, D/M/YYYY, etc.)
   const parseExpiryDate = (dateString: string | null): Date | null => {
     if (!dateString) return null;
-    const parts = dateString.split('/');
+    
+    // Remove time portion if present (e.g., "9/9/2026 0:00" -> "9/9/2026")
+    const cleanDate = dateString.split(' ')[0].trim();
+    const parts = cleanDate.split('/');
     if (parts.length !== 3) return null;
-    const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1;
+    
+    const part1 = parseInt(parts[0], 10);
+    const part2 = parseInt(parts[1], 10);
     const year = parseInt(parts[2], 10);
-    if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+    
+    if (isNaN(part1) || isNaN(part2) || isNaN(year)) return null;
+    
+    // Determine if format is M/D/YYYY or D/M/YYYY based on values
+    // If part1 > 12, it must be a day (D/M/YYYY format)
+    // If part2 > 12, it must be a day (M/D/YYYY format)
+    // Otherwise assume M/D/YYYY (US format) as that's what the data shows
+    let month: number, day: number;
+    
+    if (part1 > 12) {
+      // First part > 12 means it's day (D/M/YYYY)
+      day = part1;
+      month = part2 - 1;
+    } else if (part2 > 12) {
+      // Second part > 12 means it's day (M/D/YYYY)
+      month = part1 - 1;
+      day = part2;
+    } else {
+      // Both <= 12, assume M/D/YYYY (matches DB format "9/9/2026")
+      month = part1 - 1;
+      day = part2;
+    }
+    
     return new Date(year, month, day);
   };
 
