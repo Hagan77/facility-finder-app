@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, FileSpreadsheet, AlertCircle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useRegionFilter } from "@/hooks/useRegionFilter";
 import * as XLSX from 'xlsx';
 
 // Parse DD/MM/YYYY date format to Date object
@@ -50,6 +51,7 @@ const BulkUpload = () => {
   const [facilitiesUploading, setFacilitiesUploading] = useState(false);
   const [paymentsUploading, setPaymentsUploading] = useState(false);
   const { toast } = useToast();
+  const { getRegionData, getLocationDisplay } = useRegionFilter();
 
   // Calculate facility status summary
   const facilitySummary = useMemo(() => {
@@ -160,9 +162,16 @@ const BulkUpload = () => {
 
     setFacilitiesUploading(true);
     try {
+      const regionData = getRegionData();
+      const dataWithRegion = facilitiesData.map(f => ({
+        ...f,
+        region_id: regionData.region_id,
+        office_id: regionData.office_id,
+      }));
+      
       const { data, error } = await supabase
         .from('facilities')
-        .insert(facilitiesData);
+        .insert(dataWithRegion);
 
       if (error) throw error;
 
@@ -199,9 +208,16 @@ const BulkUpload = () => {
 
     setPaymentsUploading(true);
     try {
+      const regionData = getRegionData();
+      const dataWithRegion = paymentsData.map(p => ({
+        ...p,
+        region_id: regionData.region_id,
+        office_id: regionData.office_id,
+      }));
+      
       const { data, error } = await supabase
         .from('payments')
-        .insert(paymentsData);
+        .insert(dataWithRegion);
 
       if (error) throw error;
 
