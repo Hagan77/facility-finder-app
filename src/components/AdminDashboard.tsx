@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, CreditCard, TrendingUp, Calendar, FileText, Search, AlertCircle, Clock, CheckCircle, Download, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useRegionFilter } from "@/hooks/useRegionFilter";
+import RegionIndicator from "./RegionIndicator";
 import FacilitySearch from "./FacilitySearch";
 import PaymentSearch from "./PaymentSearch";
 import BulkUpload from "./BulkUpload";
@@ -35,6 +37,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState<'valid' | 'expiring' | 'expired' | null>(null);
   const { toast } = useToast();
+  const { selectedRegion, selectedOffice, getLocationDisplay } = useRegionFilter();
 
   useEffect(() => {
     fetchDashboardData();
@@ -59,7 +62,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [sectorFilter]);
+  }, [sectorFilter, selectedRegion, selectedOffice]);
 
   const fetchDashboardData = async () => {
     try {
@@ -77,6 +80,16 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           .from("facilities")
           .select("*", { count: 'exact' })
           .range(from, from + pageSize - 1);
+        
+        // Apply region filter
+        if (selectedRegion) {
+          query = query.eq("region_id", selectedRegion.id);
+        }
+        
+        // Apply office filter
+        if (selectedOffice) {
+          query = query.eq("office_id", selectedOffice.id);
+        }
         
         if (sectorFilter) {
           // Use exact match for enum type, case-insensitive by converting to lowercase
@@ -173,6 +186,16 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         .order("created_at", { ascending: false })
         .limit(5);
       
+      // Apply region filter
+      if (selectedRegion) {
+        recentQuery = recentQuery.eq("region_id", selectedRegion.id);
+      }
+      
+      // Apply office filter
+      if (selectedOffice) {
+        recentQuery = recentQuery.eq("office_id", selectedOffice.id);
+      }
+      
       if (sectorFilter) {
         // Use exact match for enum type, case-insensitive by converting to lowercase
         recentQuery = recentQuery.eq("sector", sectorFilter.toLowerCase() as any);
@@ -186,6 +209,16 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         .from("payments")
         .select("*", { count: "exact", head: true });
       
+      // Apply region filter
+      if (selectedRegion) {
+        paymentsCountQuery = paymentsCountQuery.eq("region_id", selectedRegion.id);
+      }
+      
+      // Apply office filter
+      if (selectedOffice) {
+        paymentsCountQuery = paymentsCountQuery.eq("office_id", selectedOffice.id);
+      }
+      
       if (sectorFilter) {
         paymentsCountQuery = paymentsCountQuery.ilike("sector", sectorFilter);
       }
@@ -198,6 +231,16 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       let allPaymentsQuery = supabase
         .from("payments")
         .select("amount_paid");
+      
+      // Apply region filter
+      if (selectedRegion) {
+        allPaymentsQuery = allPaymentsQuery.eq("region_id", selectedRegion.id);
+      }
+      
+      // Apply office filter
+      if (selectedOffice) {
+        allPaymentsQuery = allPaymentsQuery.eq("office_id", selectedOffice.id);
+      }
       
       if (sectorFilter) {
         allPaymentsQuery = allPaymentsQuery.ilike("sector", sectorFilter);
@@ -213,6 +256,16 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         .select("*")
         .order("created_at", { ascending: false })
         .limit(5);
+      
+      // Apply region filter
+      if (selectedRegion) {
+        recentPaymentsQuery = recentPaymentsQuery.eq("region_id", selectedRegion.id);
+      }
+      
+      // Apply office filter
+      if (selectedOffice) {
+        recentPaymentsQuery = recentPaymentsQuery.eq("office_id", selectedOffice.id);
+      }
       
       if (sectorFilter) {
         recentPaymentsQuery = recentPaymentsQuery.ilike("sector", sectorFilter);

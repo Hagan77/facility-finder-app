@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, MapPin, Building2, Calendar, DollarSign, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRegionFilter } from "@/hooks/useRegionFilter";
+import RegionIndicator from "./RegionIndicator";
 
 interface Payment {
   id: string;
@@ -15,6 +17,8 @@ interface Payment {
   amount_paid: number;
   payment_date: string;
   created_at: string;
+  region_id?: string | null;
+  office_id?: string | null;
 }
 
 const PaymentSearch = () => {
@@ -24,6 +28,7 @@ const PaymentSearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const { toast } = useToast();
+  const { selectedRegion, selectedOffice, getLocationDisplay } = useRegionFilter();
 
   const handleSearch = async () => {
     if (!searchName.trim() && !searchLocation.trim()) {
@@ -40,6 +45,16 @@ const PaymentSearch = () => {
 
     try {
       let query = supabase.from("payments").select("*");
+
+      // Apply region filter
+      if (selectedRegion) {
+        query = query.eq("region_id", selectedRegion.id);
+      }
+      
+      // Apply office filter
+      if (selectedOffice) {
+        query = query.eq("office_id", selectedOffice.id);
+      }
 
       if (searchName.trim()) {
         query = query.ilike("name", `%${searchName.trim()}%`);
@@ -112,10 +127,13 @@ const PaymentSearch = () => {
     <div className="w-full max-w-4xl mx-auto space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="w-5 h-5" />
-            Search Payment Status
-          </CardTitle>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <CardTitle className="flex items-center gap-2">
+              <Search className="w-5 h-5" />
+              Search Payment Status
+            </CardTitle>
+            <RegionIndicator />
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -160,6 +178,9 @@ const PaymentSearch = () => {
             <Search className="w-4 h-4 mr-2" />
             {isLoading ? "Searching..." : "Search Payment Status"}
           </Button>
+          <p className="text-xs text-muted-foreground">
+            Searching within: {getLocationDisplay()}
+          </p>
         </CardContent>
       </Card>
 
@@ -169,7 +190,7 @@ const PaymentSearch = () => {
             <Card>
               <CardContent className="py-8 text-center">
                 <p className="text-muted-foreground">
-                  No payment records found matching your search criteria.
+                  No payment records found matching your search criteria in {getLocationDisplay()}.
                 </p>
               </CardContent>
             </Card>
