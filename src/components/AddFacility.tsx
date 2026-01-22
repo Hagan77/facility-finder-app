@@ -7,8 +7,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useRegionFilter } from "@/hooks/useRegionFilter";
-import RegionIndicator from "./RegionIndicator";
 import { Building, Search, CreditCard, Info, Database } from "lucide-react";
 
 type SectorType = "agriculture" | "chemicals" | "education" | "energy" | "finance" | "health" | "hospitality" | "infrastructure" | "manufacturing" | "mining" | "quarry" | "telecommunication" | "tourism" | "transportation";
@@ -42,7 +40,6 @@ const AddFacility = () => {
   });
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { getRegionData, getLocationDisplay } = useRegionFilter();
 
   const handleFacilityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -92,7 +89,6 @@ const AddFacility = () => {
           throw new Error("Sector is required");
         }
 
-        const regionData = getRegionData();
         const { error } = await supabase
           .from("facilities")
           .insert([{
@@ -103,8 +99,6 @@ const AddFacility = () => {
             file_location_id: facilityFormData.file_location_id,
             effective_date: facilityFormData.effective_date,
             expiry_date: facilityFormData.expiry_date,
-            region_id: regionData.region_id,
-            office_id: regionData.office_id,
           }]);
 
         if (error) {
@@ -128,12 +122,9 @@ const AddFacility = () => {
           expiry_date: "",
         });
       } else {
-        const regionData = getRegionData();
         const paymentData = {
           ...paymentFormData,
           amount_paid: parseFloat(paymentFormData.amount_paid),
-          region_id: regionData.region_id,
-          office_id: regionData.office_id,
         };
 
         const { error } = await supabase

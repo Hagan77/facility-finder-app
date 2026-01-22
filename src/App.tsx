@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./components/Login";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { RegionProvider } from "./contexts/RegionContext";
 
 const queryClient = new QueryClient();
 
@@ -42,11 +41,9 @@ const AppContent = () => {
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <RegionProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </RegionProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </QueryClientProvider>
   );
 };

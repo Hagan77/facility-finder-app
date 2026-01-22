@@ -5,8 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useRegionFilter } from "@/hooks/useRegionFilter";
-import RegionIndicator from "./RegionIndicator";
 
 interface Facility {
   id: number;
@@ -18,8 +16,6 @@ interface Facility {
   expiry_date: string;
   created_at: string;
   file_location_id?: string | null;
-  region_id?: string | null;
-  office_id?: string | null;
 }
 
 const FacilitySearch = () => {
@@ -29,7 +25,6 @@ const FacilitySearch = () => {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const { toast } = useToast();
-  const { selectedRegion, selectedOffice, getLocationDisplay } = useRegionFilter();
 
   const handleSearch = async () => {
     if (!searchTerm.trim() && !locationFilter.trim()) {
@@ -47,16 +42,6 @@ const FacilitySearch = () => {
       let query = supabase
         .from("facilities")
         .select("*");
-
-      // Apply region filter
-      if (selectedRegion) {
-        query = query.eq("region_id", selectedRegion.id);
-      }
-      
-      // Apply office filter
-      if (selectedOffice) {
-        query = query.eq("office_id", selectedOffice.id);
-      }
 
       // Apply name filter if provided
       if (searchTerm.trim()) {
@@ -141,11 +126,6 @@ const FacilitySearch = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <h3 className="text-lg font-semibold">Search Facilities</h3>
-        <RegionIndicator />
-      </div>
-      
       <div className="space-y-4">
         <div className="grid gap-2 md:grid-cols-2">
           <div>
@@ -171,9 +151,6 @@ const FacilitySearch = () => {
           <Search className="h-4 w-4 mr-2" />
           {loading ? "Searching..." : "Search Facilities"}
         </Button>
-        <p className="text-xs text-muted-foreground">
-          Searching within: {getLocationDisplay()}
-        </p>
       </div>
 
       {searched && (
@@ -182,7 +159,7 @@ const FacilitySearch = () => {
             <Card>
               <CardContent className="p-6">
                 <p className="text-center text-muted-foreground">
-                  No facilities found matching your search criteria in {getLocationDisplay()}
+                  No facilities found matching your search criteria
                 </p>
               </CardContent>
             </Card>

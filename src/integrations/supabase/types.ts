@@ -24,8 +24,6 @@ export type Database = {
           id: number
           location: string | null
           name: string | null
-          office_id: string | null
-          region_id: string | null
           sector: Database["public"]["Enums"]["sector_type"] | null
         }
         Insert: {
@@ -37,8 +35,6 @@ export type Database = {
           id?: number
           location?: string | null
           name?: string | null
-          office_id?: string | null
-          region_id?: string | null
           sector?: Database["public"]["Enums"]["sector_type"] | null
         }
         Update: {
@@ -50,55 +46,9 @@ export type Database = {
           id?: number
           location?: string | null
           name?: string | null
-          office_id?: string | null
-          region_id?: string | null
           sector?: Database["public"]["Enums"]["sector_type"] | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "facilities_office_id_fkey"
-            columns: ["office_id"]
-            isOneToOne: false
-            referencedRelation: "offices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "facilities_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      offices: {
-        Row: {
-          created_at: string
-          id: string
-          office_name: string
-          region_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          office_name: string
-          region_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          office_name?: string
-          region_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "offices_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       payments: {
         Row: {
@@ -108,9 +58,7 @@ export type Database = {
           id: string
           location: string
           name: string
-          office_id: string | null
           payment_date: string
-          region_id: string | null
           sector: string | null
         }
         Insert: {
@@ -120,9 +68,7 @@ export type Database = {
           id?: string
           location: string
           name: string
-          office_id?: string | null
           payment_date: string
-          region_id?: string | null
           sector?: string | null
         }
         Update: {
@@ -132,27 +78,10 @@ export type Database = {
           id?: string
           location?: string
           name?: string
-          office_id?: string | null
           payment_date?: string
-          region_id?: string | null
           sector?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "payments_office_id_fkey"
-            columns: ["office_id"]
-            isOneToOne: false
-            referencedRelation: "offices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -175,27 +104,6 @@ export type Database = {
           sector?: Database["public"]["Enums"]["sector_type"] | null
           updated_at?: string | null
           username?: string
-        }
-        Relationships: []
-      }
-      regions: {
-        Row: {
-          code: string
-          created_at: string
-          id: string
-          name: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          id?: string
-          name: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          id?: string
-          name?: string
         }
         Relationships: []
       }
