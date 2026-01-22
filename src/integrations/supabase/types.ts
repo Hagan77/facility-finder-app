@@ -264,29 +264,6 @@ export type Database = {
         | "chemicals & Pesticide"
         | "chemicals & pesticide"
         | "chemicals & pesticides"
-        | "AGRICULTURE"
-        | "TELECOMMUNICATION"
-        | "CHEMICALS & PESTICIDE"
-        | "Manufacturing"
-        | "HHOSPITALITY"
-        | "HHospitlity"
-        | "MINES AND QUARRY"
-        | " MINING"
-        | " Mining"
-        | " Infrastructure"
-        | "Infrastructure"
-        | "Hospitality"
-        | "IINFRASTRUCTURE"
-        | "Mining"
-        | " CHEMICALS & PESTICIDE"
-        | "CHEMICALS & PESTICIDE "
-        | "Chemicals & Pesticides"
-        | "Chemicals & Pesticides "
-        | " Chemicals & Pesticides"
-        | "Agriculture"
-        | " Agriculture"
-        | " Agriculture "
-        | "N"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -443,29 +420,6 @@ export const Constants = {
         "chemicals & Pesticide",
         "chemicals & pesticide",
         "chemicals & pesticides",
-        "AGRICULTURE",
-        "TELECOMMUNICATION",
-        "CHEMICALS & PESTICIDE",
-        "Manufacturing",
-        "HHOSPITALITY",
-        "HHospitlity",
-        "MINES AND QUARRY",
-        " MINING",
-        " Mining",
-        " Infrastructure",
-        "Infrastructure",
-        "Hospitality",
-        "IINFRASTRUCTURE",
-        "Mining",
-        " CHEMICALS & PESTICIDE",
-        "CHEMICALS & PESTICIDE ",
-        "Chemicals & Pesticides",
-        "Chemicals & Pesticides ",
-        " Chemicals & Pesticides",
-        "Agriculture",
-        " Agriculture",
-        " Agriculture ",
-        "N",
       ],
     },
   },
