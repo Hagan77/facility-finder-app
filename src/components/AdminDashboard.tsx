@@ -92,8 +92,8 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         }
         
         if (sectorFilter) {
-          // Use ilike with wildcard for case-insensitive sector matching
-          query = query.ilike("sector", `%${sectorFilter}%`);
+          // Cast sector enum to text for case-insensitive matching
+          query = query.filter("sector::text", "ilike", `%${sectorFilter}%`);
         }
 
         const { data, error, count } = await query;
@@ -197,8 +197,8 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       }
       
       if (sectorFilter) {
-        // Use ilike with wildcard for case-insensitive sector matching
-        recentQuery = recentQuery.ilike("sector", `%${sectorFilter}%`);
+        // Cast sector enum to text for case-insensitive matching
+        recentQuery = recentQuery.filter("sector::text", "ilike", `%${sectorFilter}%`);
       }
 
       const { data: recentFacilities, error: facilityError } = await recentQuery;
@@ -220,7 +220,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       }
       
       if (sectorFilter) {
-        paymentsCountQuery = paymentsCountQuery.ilike("sector", `%${sectorFilter}%`);
+        paymentsCountQuery = paymentsCountQuery.filter("sector::text", "ilike", `%${sectorFilter}%`);
       }
       
       const { count: paymentsCount, error: paymentsCountError } = await paymentsCountQuery;
@@ -243,7 +243,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       }
       
       if (sectorFilter) {
-        allPaymentsQuery = allPaymentsQuery.ilike("sector", `%${sectorFilter}%`);
+        allPaymentsQuery = allPaymentsQuery.filter("sector::text", "ilike", `%${sectorFilter}%`);
       }
       
       const { data: allPayments, error: allPaymentsError } = await allPaymentsQuery;
@@ -268,7 +268,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       }
       
       if (sectorFilter) {
-        recentPaymentsQuery = recentPaymentsQuery.ilike("sector", `%${sectorFilter}%`);
+        recentPaymentsQuery = recentPaymentsQuery.filter("sector::text", "ilike", `%${sectorFilter}%`);
       }
       
       const { data: recentPayments, error: paymentError } = await recentPaymentsQuery;
