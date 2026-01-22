@@ -91,10 +91,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           query = query.eq("office_id", selectedOffice.id);
         }
         
-        if (sectorFilter) {
-          // Cast sector enum to text for case-insensitive matching
-          query = query.filter("sector::text", "ilike", `%${sectorFilter}%`);
-        }
+        // Note: sector filter is applied client-side due to enum type limitation
 
         const { data, error, count } = await query;
         if (error) throw error;
@@ -113,6 +110,15 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         }
         
         from += pageSize;
+      }
+      
+      // Apply sector filter client-side for facilities (enum type doesn't support ilike in PostgREST)
+      if (sectorFilter) {
+        const filterLower = sectorFilter.toLowerCase();
+        allFacilities = allFacilities.filter(f => 
+          f.sector && f.sector.toLowerCase().includes(filterLower)
+        );
+        facilitiesCount = allFacilities.length;
       }
       
       console.log(`Dashboard data fetch - Sector filter: ${sectorFilter || 'None'}`);
@@ -196,10 +202,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         recentQuery = recentQuery.eq("office_id", selectedOffice.id);
       }
       
-      if (sectorFilter) {
-        // Cast sector enum to text for case-insensitive matching
-        recentQuery = recentQuery.filter("sector::text", "ilike", `%${sectorFilter}%`);
-      }
+      // Note: sector filter for recent facilities is handled by filtering the allFacilities list
 
       const { data: recentFacilities, error: facilityError } = await recentQuery;
       if (facilityError) throw facilityError;
@@ -220,7 +223,8 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       }
       
       if (sectorFilter) {
-        paymentsCountQuery = paymentsCountQuery.filter("sector::text", "ilike", `%${sectorFilter}%`);
+        // payments.sector is text type, so ilike works directly
+        paymentsCountQuery = paymentsCountQuery.ilike("sector", `%${sectorFilter}%`);
       }
       
       const { count: paymentsCount, error: paymentsCountError } = await paymentsCountQuery;
@@ -243,7 +247,8 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       }
       
       if (sectorFilter) {
-        allPaymentsQuery = allPaymentsQuery.filter("sector::text", "ilike", `%${sectorFilter}%`);
+        // payments.sector is text type, so ilike works directly
+        allPaymentsQuery = allPaymentsQuery.ilike("sector", `%${sectorFilter}%`);
       }
       
       const { data: allPayments, error: allPaymentsError } = await allPaymentsQuery;
@@ -268,7 +273,8 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       }
       
       if (sectorFilter) {
-        recentPaymentsQuery = recentPaymentsQuery.filter("sector::text", "ilike", `%${sectorFilter}%`);
+        // payments.sector is text type, so ilike works directly
+        recentPaymentsQuery = recentPaymentsQuery.ilike("sector", `%${sectorFilter}%`);
       }
       
       const { data: recentPayments, error: paymentError } = await recentPaymentsQuery;
