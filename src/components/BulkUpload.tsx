@@ -249,6 +249,25 @@ const BulkUpload = () => {
         <p className="text-muted-foreground">Upload Excel files to add facilities and payments in bulk</p>
       </div>
 
+      {/* Region indicator for uploads */}
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="pt-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Upload className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">Data will be uploaded to:</p>
+              <p className="text-lg font-bold text-primary">{getLocationDisplay()}</p>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            All uploaded records will be automatically tagged with your selected region and office. 
+            This data will only be visible to users viewing the same region.
+          </p>
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="facilities" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="facilities">Upload Facilities</TabsTrigger>
