@@ -174,6 +174,24 @@ const AddFacility = () => {
 
   return (
     <div className="space-y-6">
+      {/* Region indicator */}
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="pt-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Building className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">Adding records to:</p>
+              <p className="text-lg font-bold text-primary">{getLocationDisplay()}</p>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Records will be automatically tagged with your selected region and office.
+          </p>
+        </CardContent>
+      </Card>
+
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
