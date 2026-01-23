@@ -91,10 +91,8 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           query = query.eq("office_id", selectedOffice.id);
         }
         
-        if (sectorFilter) {
-          // Use ilike for case-insensitive sector matching
-          query = query.ilike("sector", sectorFilter);
-        }
+        // Note: sector is an ENUM type, so we can't use ilike on it
+        // We'll filter client-side for case-insensitive matching
 
         const { data, error, count } = await query;
         if (error) throw error;
@@ -113,6 +111,14 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         }
         
         from += pageSize;
+      }
+      
+      // Apply case-insensitive sector filtering client-side (ENUM type doesn't support ilike)
+      if (sectorFilter) {
+        allFacilities = allFacilities.filter(facility => 
+          facility.sector?.toLowerCase() === sectorFilter.toLowerCase()
+        );
+        facilitiesCount = allFacilities.length;
       }
       
       console.log(`Dashboard data fetch - Sector filter: ${sectorFilter || 'None'}`);
