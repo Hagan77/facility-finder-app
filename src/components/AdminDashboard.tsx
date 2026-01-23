@@ -114,10 +114,13 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       }
       
       // Apply case-insensitive sector filtering client-side (ENUM type doesn't support ilike)
+      // Also trim whitespace and handle variations
       if (sectorFilter) {
-        allFacilities = allFacilities.filter(facility => 
-          facility.sector?.toLowerCase() === sectorFilter.toLowerCase()
-        );
+        const normalizedFilter = sectorFilter.toLowerCase().trim();
+        allFacilities = allFacilities.filter(facility => {
+          const facilitySector = facility.sector?.toLowerCase().trim();
+          return facilitySector === normalizedFilter || facilitySector?.includes(normalizedFilter);
+        });
         facilitiesCount = allFacilities.length;
       }
       
@@ -209,9 +212,11 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       
       // Apply case-insensitive sector filtering client-side for recent facilities
       if (sectorFilter && recentFacilities) {
-        recentFacilities = recentFacilities.filter(f => 
-          f.sector?.toLowerCase() === sectorFilter.toLowerCase()
-        );
+        const normalizedFilter = sectorFilter.toLowerCase().trim();
+        recentFacilities = recentFacilities.filter(f => {
+          const facilitySector = f.sector?.toLowerCase().trim();
+          return facilitySector === normalizedFilter || facilitySector?.includes(normalizedFilter);
+        });
       }
 
       // Fetch total count of payments - filter by sector if applicable
