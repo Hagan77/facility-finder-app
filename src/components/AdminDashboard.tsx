@@ -202,13 +202,17 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         recentQuery = recentQuery.eq("office_id", selectedOffice.id);
       }
       
-      if (sectorFilter) {
-        // Use ilike for case-insensitive sector matching
-        recentQuery = recentQuery.ilike("sector", sectorFilter);
-      }
+      // Note: sector filtering will be done client-side since it's an ENUM type
 
-      const { data: recentFacilities, error: facilityError } = await recentQuery;
+      let { data: recentFacilities, error: facilityError } = await recentQuery;
       if (facilityError) throw facilityError;
+      
+      // Apply case-insensitive sector filtering client-side for recent facilities
+      if (sectorFilter && recentFacilities) {
+        recentFacilities = recentFacilities.filter(f => 
+          f.sector?.toLowerCase() === sectorFilter.toLowerCase()
+        );
+      }
 
       // Fetch total count of payments - filter by sector if applicable
       let paymentsCountQuery = supabase
