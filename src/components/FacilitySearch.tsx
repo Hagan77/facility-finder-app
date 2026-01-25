@@ -48,13 +48,21 @@ const FacilitySearch = () => {
         .from("facilities")
         .select("*");
 
-      // Apply region filter
-      if (selectedRegion) {
+      // Log current filter state for debugging
+      console.log("Search filters:", {
+        selectedRegion: selectedRegion?.id,
+        selectedOffice: selectedOffice?.id,
+        searchTerm,
+        locationFilter
+      });
+
+      // Only apply region/office filters if they are selected
+      // This allows searching across all data when no region is selected
+      if (selectedRegion?.id) {
         query = query.eq("region_id", selectedRegion.id);
       }
       
-      // Apply office filter
-      if (selectedOffice) {
+      if (selectedOffice?.id) {
         query = query.eq("office_id", selectedOffice.id);
       }
 
@@ -68,7 +76,9 @@ const FacilitySearch = () => {
         query = query.ilike("location", `%${locationFilter}%`);
       }
 
-      const { data, error } = await query.order("name").order("location");
+      const { data, error, count } = await query.order("name").order("location").limit(100);
+
+      console.log("Search results:", { count: data?.length, error });
 
       if (error) {
         throw error;
