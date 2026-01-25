@@ -46,13 +46,20 @@ const PaymentSearch = () => {
     try {
       let query = supabase.from("payments").select("*");
 
-      // Apply region filter
-      if (selectedRegion) {
+      // Log current filter state for debugging
+      console.log("Payment search filters:", {
+        selectedRegion: selectedRegion?.id,
+        selectedOffice: selectedOffice?.id,
+        searchName,
+        searchLocation
+      });
+
+      // Only apply region/office filters if they are selected
+      if (selectedRegion?.id) {
         query = query.eq("region_id", selectedRegion.id);
       }
       
-      // Apply office filter
-      if (selectedOffice) {
+      if (selectedOffice?.id) {
         query = query.eq("office_id", selectedOffice.id);
       }
 
@@ -64,7 +71,9 @@ const PaymentSearch = () => {
         query = query.ilike("location", `%${searchLocation.trim()}%`);
       }
 
-      const { data, error } = await query.order("created_at", { ascending: false });
+      const { data, error } = await query.order("created_at", { ascending: false }).limit(100);
+
+      console.log("Payment search results:", { count: data?.length, error });
 
       if (error) {
         console.error("Error searching payments:", error);
