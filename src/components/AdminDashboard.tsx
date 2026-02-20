@@ -12,6 +12,7 @@ import RegionIndicator from "./RegionIndicator";
 import FacilitySearch from "./FacilitySearch";
 import PaymentSearch from "./PaymentSearch";
 import BulkUpload from "./BulkUpload";
+import PermittedApplications from "./PermittedApplications";
 
 interface AdminDashboardProps {
   sectorFilter?: string;
@@ -413,10 +414,16 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className={`grid w-full ${!sectorFilter ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3'} gap-1 h-auto p-1`}>
+        <TabsList className={`grid w-full ${!sectorFilter ? 'grid-cols-2 sm:grid-cols-5' : 'grid-cols-1 sm:grid-cols-3'} gap-1 h-auto p-1`}>
           <TabsTrigger value="overview" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
             Overview
           </TabsTrigger>
+          {!sectorFilter && (
+            <TabsTrigger value="permitted" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
+              <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+              <span className="truncate">Permitted Apps</span>
+            </TabsTrigger>
+          )}
           <TabsTrigger value="facility-search" className="text-xs sm:text-sm py-2 px-2 sm:px-4">
             <Search className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
             <span className="truncate">Facility Search</span>
@@ -725,6 +732,12 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           </Button>
         </div>
         </TabsContent>
+
+        {!sectorFilter && (
+          <TabsContent value="permitted" className="mt-6">
+            <PermittedApplications />
+          </TabsContent>
+        )}
 
         <TabsContent value="facility-search" className="mt-6">
           <FacilitySearch />
