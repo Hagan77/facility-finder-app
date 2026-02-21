@@ -154,6 +154,63 @@ export type Database = {
           },
         ]
       }
+      permitted_applications: {
+        Row: {
+          created_at: string
+          district: string | null
+          effective_date: string | null
+          expiry_date: string | null
+          file_location_id: string | null
+          id: number
+          location: string | null
+          name: string | null
+          office_id: string | null
+          region_id: string | null
+          sector: string | null
+        }
+        Insert: {
+          created_at?: string
+          district?: string | null
+          effective_date?: string | null
+          expiry_date?: string | null
+          file_location_id?: string | null
+          id?: number
+          location?: string | null
+          name?: string | null
+          office_id?: string | null
+          region_id?: string | null
+          sector?: string | null
+        }
+        Update: {
+          created_at?: string
+          district?: string | null
+          effective_date?: string | null
+          expiry_date?: string | null
+          file_location_id?: string | null
+          id?: number
+          location?: string | null
+          name?: string | null
+          office_id?: string | null
+          region_id?: string | null
+          sector?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permitted_applications_office_id_fkey"
+            columns: ["office_id"]
+            isOneToOne: false
+            referencedRelation: "offices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permitted_applications_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
