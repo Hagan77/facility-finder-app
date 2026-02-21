@@ -28,7 +28,7 @@ const PermittedApplications = () => {
   const fetchFacilities = async () => {
     try {
       setLoading(true);
-      let query = supabase.from("facilities").select("*").order("name");
+      let query = supabase.from("permitted_applications").select("*").order("name");
 
       if (selectedRegion?.id) {
         query = query.eq("region_id", selectedRegion.id);
@@ -52,7 +52,7 @@ const PermittedApplications = () => {
     if (!deleteId) return;
     setDeleting(true);
     try {
-      const { error } = await supabase.from("facilities").delete().eq("id", deleteId);
+      const { error } = await supabase.from("permitted_applications").delete().eq("id", deleteId);
       if (error) throw error;
       toast({ title: "Facility deleted successfully" });
       setDeleteId(null);
@@ -95,7 +95,7 @@ const PermittedApplications = () => {
           return;
         }
 
-        const { error } = await supabase.from("facilities").insert(mapped);
+        const { error } = await supabase.from("permitted_applications").insert(mapped);
         if (error) throw error;
 
         toast({ title: "Upload successful", description: `${mapped.length} facilities uploaded` });
