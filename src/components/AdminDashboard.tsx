@@ -82,14 +82,12 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           .select("*", { count: 'exact' })
           .range(from, from + pageSize - 1);
         
-        // Note: Region/office filtering is disabled for now since existing data doesn't have these fields set
-        // Once data is properly tagged with region_id/office_id, uncomment the filters below:
-        // if (selectedRegion) {
-        //   query = query.eq("region_id", selectedRegion.id);
-        // }
-        // if (selectedOffice) {
-        //   query = query.eq("office_id", selectedOffice.id);
-        // }
+        if (selectedRegion) {
+          query = query.eq("region_id", selectedRegion.id);
+        }
+        if (selectedOffice) {
+          query = query.eq("office_id", selectedOffice.id);
+        }
         
         // Note: sector is an ENUM type, so we can't use ilike on it
         // We'll filter client-side for case-insensitive matching
@@ -195,13 +193,12 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         .order("created_at", { ascending: false })
         .limit(5);
       
-      // Note: Region/office filtering is disabled for now since existing data doesn't have these fields set
-      // if (selectedRegion) {
-      //   recentQuery = recentQuery.eq("region_id", selectedRegion.id);
-      // }
-      // if (selectedOffice) {
-      //   recentQuery = recentQuery.eq("office_id", selectedOffice.id);
-      // }
+      if (selectedRegion) {
+        recentQuery = recentQuery.eq("region_id", selectedRegion.id);
+      }
+      if (selectedOffice) {
+        recentQuery = recentQuery.eq("office_id", selectedOffice.id);
+      }
       
       // Note: sector filtering will be done client-side since it's an ENUM type
 
@@ -222,13 +219,12 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         .from("payments")
         .select("*", { count: "exact", head: true });
       
-      // Note: Region/office filtering is disabled for now since existing data doesn't have these fields set
-      // if (selectedRegion) {
-      //   paymentsCountQuery = paymentsCountQuery.eq("region_id", selectedRegion.id);
-      // }
-      // if (selectedOffice) {
-      //   paymentsCountQuery = paymentsCountQuery.eq("office_id", selectedOffice.id);
-      // }
+      if (selectedRegion) {
+        paymentsCountQuery = paymentsCountQuery.eq("region_id", selectedRegion.id);
+      }
+      if (selectedOffice) {
+        paymentsCountQuery = paymentsCountQuery.eq("office_id", selectedOffice.id);
+      }
       
       if (sectorFilter) {
         paymentsCountQuery = paymentsCountQuery.ilike("sector", sectorFilter);
@@ -243,13 +239,12 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         .from("payments")
         .select("amount_paid");
       
-      // Note: Region/office filtering is disabled for now since existing data doesn't have these fields set
-      // if (selectedRegion) {
-      //   allPaymentsQuery = allPaymentsQuery.eq("region_id", selectedRegion.id);
-      // }
-      // if (selectedOffice) {
-      //   allPaymentsQuery = allPaymentsQuery.eq("office_id", selectedOffice.id);
-      // }
+      if (selectedRegion) {
+        allPaymentsQuery = allPaymentsQuery.eq("region_id", selectedRegion.id);
+      }
+      if (selectedOffice) {
+        allPaymentsQuery = allPaymentsQuery.eq("office_id", selectedOffice.id);
+      }
       
       if (sectorFilter) {
         allPaymentsQuery = allPaymentsQuery.ilike("sector", sectorFilter);
@@ -266,13 +261,12 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         .order("created_at", { ascending: false })
         .limit(5);
       
-      // Note: Region/office filtering is disabled for now since existing data doesn't have these fields set
-      // if (selectedRegion) {
-      //   recentPaymentsQuery = recentPaymentsQuery.eq("region_id", selectedRegion.id);
-      // }
-      // if (selectedOffice) {
-      //   recentPaymentsQuery = recentPaymentsQuery.eq("office_id", selectedOffice.id);
-      // }
+      if (selectedRegion) {
+        recentPaymentsQuery = recentPaymentsQuery.eq("region_id", selectedRegion.id);
+      }
+      if (selectedOffice) {
+        recentPaymentsQuery = recentPaymentsQuery.eq("office_id", selectedOffice.id);
+      }
       
       if (sectorFilter) {
         recentPaymentsQuery = recentPaymentsQuery.ilike("sector", sectorFilter);
