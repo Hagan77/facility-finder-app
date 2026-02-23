@@ -11,6 +11,7 @@ import { Upload, FileSpreadsheet, AlertCircle, CheckCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { useRegionFilter } from "@/hooks/useRegionFilter";
 import * as XLSX from 'xlsx';
+
 // Convert Excel serial date number to DD/MM/YYYY string
 const excelDateToString = (value: any): string => {
   if (!value) return '';
@@ -23,6 +24,39 @@ const excelDateToString = (value: any): string => {
     return `${day}/${month}/${year}`;
   }
   return String(value);
+};
+
+// Normalize sector values to match the database ENUM
+// The ENUM has many variants; we try to match the trimmed value as-is first,
+// then fall back to a canonical lowercase form
+const SECTOR_MAP: Record<string, string> = {
+  'hospitality': 'hospitality',
+  'health': 'health',
+  'mining': 'mining',
+  'infrastructure': 'infrastructure',
+  'education': 'education',
+  'agriculture': 'agriculture',
+  'manufacturing': 'manufacturing',
+  'tourism': 'tourism',
+  'finance': 'finance',
+  'transportation': 'transportation',
+  'energy': 'energy',
+  'chemicals': 'chemicals',
+  'telecommunication': 'telecommunication',
+  'quarry': 'quarry',
+  'small scale mining': 'small scale mining',
+  'mines and quarry': 'mines and quarry',
+  'chemicals & pesticide': 'chemicals & pesticide',
+  'chemicals & pesticides': 'chemicals & pesticides',
+};
+
+const normalizeSector = (value: string): string => {
+  if (!value) return '';
+  const trimmed = value.trim();
+  // Try exact match first (some enum values have uppercase variants)
+  // Then try lowercase mapping
+  const lower = trimmed.toLowerCase();
+  return SECTOR_MAP[lower] || trimmed;
 };
 
 // Parse DD/MM/YYYY date format to Date object
@@ -95,6 +129,21 @@ const BulkUpload = () => {
     }
   };
 
+  // Helper to find a value from a row using case-insensitive key matching
+  const getRowValue = (row: any, ...keys: string[]): any => {
+    // First try exact match
+    for (const key of keys) {
+      if (row[key] !== undefined && row[key] !== null) return row[key];
+    }
+    // Then try case-insensitive match
+    const rowKeys = Object.keys(row);
+    for (const key of keys) {
+      const found = rowKeys.find(k => k.trim().toLowerCase() === key.trim().toLowerCase());
+      if (found && row[found] !== undefined && row[found] !== null) return row[found];
+    }
+    return '';
+  };
+
   const parseFacilitiesExcel = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -105,15 +154,18 @@ const BulkUpload = () => {
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet);
         
-        // Map the Excel columns to database columns
+        console.log("Excel headers:", json.length > 0 ? Object.keys(json[0] as any) : "empty");
+        console.log("First row:", json[0]);
+        
+        // Map the Excel columns to database columns with case-insensitive matching
         const mappedData = json.map((row: any) => ({
-          name: row['Facility Name'] || row['name'] || '',
-          sector: row['Sector'] || row['sector'] || '',
-          location: row['Location'] || row['location'] || '',
-          district: row['District'] || row['district'] || '',
-          expiry_date: excelDateToString(row['Expiry Date'] || row['expiry_date'] || ''),
-          effective_date: excelDateToString(row['Effective Date'] || row['effective_date'] || ''),
-          file_location_id: row['File Location ID'] || row['file_location_id'] || '',
+          name: getRowValue(row, 'Facility Name', 'Name', 'name', 'facility name', 'FACILITY NAME'),
+          sector: normalizeSector(String(getRowValue(row, 'Sector', 'sector', 'SECTOR') || '')),
+          location: getRowValue(row, 'Location', 'location', 'LOCATION'),
+          district: getRowValue(row, 'District', 'district', 'DISTRICT'),
+          expiry_date: excelDateToString(getRowValue(row, 'Expiry Date', 'expiry_date', 'Expiry date', 'EXPIRY DATE')),
+          effective_date: excelDateToString(getRowValue(row, 'Effective Date', 'effective_date', 'Effective date', 'EFFECTIVE DATE')),
+          file_location_id: getRowValue(row, 'File Location ID', 'file_location_id', 'File Location Id', 'FILE LOCATION ID', 'File location ID'),
         }));
         
         setFacilitiesData(mappedData);
@@ -142,14 +194,15 @@ const BulkUpload = () => {
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet);
         
-        // Map the Excel columns to database columns
+        console.log("Payment Excel headers:", json.length > 0 ? Object.keys(json[0] as any) : "empty");
+        
         const mappedData = json.map((row: any) => ({
-          name: row['Name'] || row['name'] || '',
-          sector: row['Sector'] || row['sector'] || '',
-          location: row['Location'] || row['location'] || '',
-          category: row['Category'] || row['category'] || '',
-          amount_paid: parseFloat(row['Amount Paid'] || row['amount_paid'] || '0'),
-          payment_date: excelDateToString(row['Payment Date'] || row['payment_date'] || ''),
+          name: getRowValue(row, 'Name', 'name', 'NAME'),
+          sector: normalizeSector(String(getRowValue(row, 'Sector', 'sector', 'SECTOR') || '')),
+          location: getRowValue(row, 'Location', 'location', 'LOCATION'),
+          category: getRowValue(row, 'Category', 'category', 'CATEGORY'),
+          amount_paid: parseFloat(getRowValue(row, 'Amount Paid', 'amount_paid', 'AMOUNT PAID', 'Amount') || '0'),
+          payment_date: excelDateToString(getRowValue(row, 'Payment Date', 'payment_date', 'PAYMENT DATE', 'Date')),
         }));
         
         setPaymentsData(mappedData);
@@ -189,7 +242,7 @@ const BulkUpload = () => {
       
       const { data, error } = await supabase
         .from('facilities')
-        .insert(dataWithRegion);
+        .insert(dataWithRegion as any);
 
       if (error) throw error;
 
