@@ -11,6 +11,19 @@ import { Upload, FileSpreadsheet, AlertCircle, CheckCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { useRegionFilter } from "@/hooks/useRegionFilter";
 import * as XLSX from 'xlsx';
+// Convert Excel serial date number to DD/MM/YYYY string
+const excelDateToString = (value: any): string => {
+  if (!value) return '';
+  if (typeof value === 'number') {
+    const excelEpoch = new Date(1899, 11, 30);
+    const date = new Date(excelEpoch.getTime() + value * 86400000);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+  return String(value);
+};
 
 // Parse DD/MM/YYYY date format to Date object
 const parseDateDDMMYYYY = (dateStr: string | number): Date | null => {
@@ -98,8 +111,8 @@ const BulkUpload = () => {
           sector: row['Sector'] || row['sector'] || '',
           location: row['Location'] || row['location'] || '',
           district: row['District'] || row['district'] || '',
-          expiry_date: row['Expiry Date'] || row['expiry_date'] || '',
-          effective_date: row['Effective Date'] || row['effective_date'] || '',
+          expiry_date: excelDateToString(row['Expiry Date'] || row['expiry_date'] || ''),
+          effective_date: excelDateToString(row['Effective Date'] || row['effective_date'] || ''),
           file_location_id: row['File Location ID'] || row['file_location_id'] || '',
         }));
         
@@ -136,7 +149,7 @@ const BulkUpload = () => {
           location: row['Location'] || row['location'] || '',
           category: row['Category'] || row['category'] || '',
           amount_paid: parseFloat(row['Amount Paid'] || row['amount_paid'] || '0'),
-          payment_date: row['Payment Date'] || row['payment_date'] || '',
+          payment_date: excelDateToString(row['Payment Date'] || row['payment_date'] || ''),
         }));
         
         setPaymentsData(mappedData);
