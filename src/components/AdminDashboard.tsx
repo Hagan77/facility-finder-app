@@ -126,9 +126,15 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       console.log(`Fetched ${allFacilities.length} facilities, total count: ${facilitiesCount}`);
 
       // Helper function to parse DD/MM/YYYY date format
-      const parseExpiryDate = (dateString: string | null): Date | null => {
+      const parseExpiryDate = (dateString: string | number | null): Date | null => {
         if (!dateString) return null;
-        const parts = dateString.split('/');
+        // Handle Excel serial date numbers
+        if (typeof dateString === 'number') {
+          const excelEpoch = new Date(1899, 11, 30);
+          return new Date(excelEpoch.getTime() + dateString * 86400000);
+        }
+        const str = String(dateString);
+        const parts = str.split('/');
         if (parts.length !== 3) return null;
         // DD/MM/YYYY -> new Date(year, month-1, day)
         return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));

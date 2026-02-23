@@ -13,9 +13,14 @@ import { useRegionFilter } from "@/hooks/useRegionFilter";
 import * as XLSX from 'xlsx';
 
 // Parse DD/MM/YYYY date format to Date object
-const parseDateDDMMYYYY = (dateStr: string): Date | null => {
+const parseDateDDMMYYYY = (dateStr: string | number): Date | null => {
   if (!dateStr) return null;
-  const parts = dateStr.split('/');
+  if (typeof dateStr === 'number') {
+    const excelEpoch = new Date(1899, 11, 30);
+    return new Date(excelEpoch.getTime() + dateStr * 86400000);
+  }
+  const str = String(dateStr);
+  const parts = str.split('/');
   if (parts.length === 3) {
     const day = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10) - 1;

@@ -75,11 +75,16 @@ const SuperAdminDashboard = () => {
   const { toast } = useToast();
 
   // Helper to parse dates - handles multiple formats (M/D/YYYY, D/M/YYYY, etc.)
-  const parseExpiryDate = (dateString: string | null): Date | null => {
+  const parseExpiryDate = (dateString: string | number | null): Date | null => {
     if (!dateString) return null;
-    
+    // Handle Excel serial date numbers
+    if (typeof dateString === 'number') {
+      const excelEpoch = new Date(1899, 11, 30);
+      return new Date(excelEpoch.getTime() + dateString * 86400000);
+    }
+    const str = String(dateString);
     // Remove time portion if present (e.g., "9/9/2026 0:00" -> "9/9/2026")
-    const cleanDate = dateString.split(' ')[0].trim();
+    const cleanDate = str.split(' ')[0].trim();
     const parts = cleanDate.split('/');
     if (parts.length !== 3) return null;
     

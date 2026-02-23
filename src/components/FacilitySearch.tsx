@@ -97,13 +97,21 @@ const FacilitySearch = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | number) => {
     if (!dateString) return "Not specified";
     
+    // Handle Excel serial date numbers
+    if (typeof dateString === 'number') {
+      const excelEpoch = new Date(1899, 11, 30);
+      const date = new Date(excelEpoch.getTime() + dateString * 86400000);
+      return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    }
+    
+    const str = String(dateString);
     try {
       // First, try parsing DD/MM/YYYY or D/M/YYYY format
-      if (dateString.includes('/')) {
-        const parts = dateString.split('/');
+      if (str.includes('/')) {
+        const parts = str.split('/');
         if (parts.length === 3) {
           const day = parseInt(parts[0], 10);
           const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-indexed
