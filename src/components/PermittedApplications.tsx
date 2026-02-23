@@ -12,7 +12,7 @@ import * as XLSX from "xlsx";
 
 // Convert Excel serial date number to DD/MM/YYYY string
 const excelDateToString = (value: any): string => {
-  if (!value) return '';
+  if (!value && value !== 0) return '';
   if (typeof value === 'number') {
     const excelEpoch = new Date(1899, 11, 30);
     const date = new Date(excelEpoch.getTime() + value * 86400000);
@@ -22,6 +22,18 @@ const excelDateToString = (value: any): string => {
     return `${day}/${month}/${year}`;
   }
   return String(value);
+};
+
+// Case-insensitive row value getter
+const getRowValue = (row: any, keys: string[]): string => {
+  const rowKeys = Object.keys(row);
+  for (const key of keys) {
+    const match = rowKeys.find(k => k.trim().toLowerCase() === key.toLowerCase());
+    if (match && row[match] !== undefined && row[match] !== null) {
+      return String(row[match]);
+    }
+  }
+  return "";
 };
 
 const PermittedApplications = () => {
@@ -92,17 +104,38 @@ const PermittedApplications = () => {
         const json = XLSX.utils.sheet_to_json(sheet);
 
         const regionData = getRegionData();
-        const mapped = json.map((row: any) => ({
-          name: row["Facility Name"] || row["name"] || row["Facility"] || "",
-          sector: row["Sector"] || row["sector"] || "",
-          location: row["Location"] || row["location"] || "",
-          district: row["District"] || row["district"] || "",
-          effective_date: excelDateToString(row["Effective Date"] || row["effective_date"] || ""),
-          expiry_date: excelDateToString(row["Expiry Date"] || row["expiry_date"] || ""),
-          file_location_id: row["File Location ID"] || row["file_location_id"] || "",
-          region_id: regionData.region_id,
-          office_id: regionData.office_id,
-        }));
+        const mapped = json.map((row: any) => {
+          const rawEffective = (() => {
+            const rowKeys = Object.keys(row);
+            const keys = ["effective date", "effective_date", "effectivedate"];
+            for (const key of keys) {
+              const match = rowKeys.find(k => k.trim().toLowerCase() === key);
+              if (match && row[match] !== undefined && row[match] !== null) return row[match];
+            }
+            return "";
+          })();
+          const rawExpiry = (() => {
+            const rowKeys = Object.keys(row);
+            const keys = ["expiry date", "expiry_date", "expirydate"];
+            for (const key of keys) {
+              const match = rowKeys.find(k => k.trim().toLowerCase() === key);
+              if (match && row[match] !== undefined && row[match] !== null) return row[match];
+            }
+            return "";
+          })();
+
+          return {
+            name: getRowValue(row, ["facility name", "name", "facility"]),
+            sector: getRowValue(row, ["sector"]),
+            location: getRowValue(row, ["location"]),
+            district: getRowValue(row, ["district"]),
+            effective_date: excelDateToString(rawEffective),
+            expiry_date: excelDateToString(rawExpiry),
+            file_location_id: getRowValue(row, ["file location id", "file_location_id", "file location"]),
+            region_id: regionData.region_id,
+            office_id: regionData.office_id,
+          };
+        });
 
         if (mapped.length === 0) {
           toast({ title: "No data found in file", variant: "destructive" });
