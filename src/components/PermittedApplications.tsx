@@ -10,6 +10,20 @@ import { useRegionFilter } from "@/hooks/useRegionFilter";
 import { FileSpreadsheet, Upload, Trash2, Search, RefreshCw } from "lucide-react";
 import * as XLSX from "xlsx";
 
+// Convert Excel serial date number to DD/MM/YYYY string
+const excelDateToString = (value: any): string => {
+  if (!value) return '';
+  if (typeof value === 'number') {
+    const excelEpoch = new Date(1899, 11, 30);
+    const date = new Date(excelEpoch.getTime() + value * 86400000);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+  return String(value);
+};
+
 const PermittedApplications = () => {
   const [facilities, setFacilities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,8 +97,8 @@ const PermittedApplications = () => {
           sector: row["Sector"] || row["sector"] || "",
           location: row["Location"] || row["location"] || "",
           district: row["District"] || row["district"] || "",
-          effective_date: row["Effective Date"] || row["effective_date"] || "",
-          expiry_date: row["Expiry Date"] || row["expiry_date"] || "",
+          effective_date: excelDateToString(row["Effective Date"] || row["effective_date"] || ""),
+          expiry_date: excelDateToString(row["Expiry Date"] || row["expiry_date"] || ""),
           file_location_id: row["File Location ID"] || row["file_location_id"] || "",
           region_id: regionData.region_id,
           office_id: regionData.office_id,
