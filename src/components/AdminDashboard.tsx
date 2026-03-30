@@ -24,6 +24,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
     totalFacilities: 0,
     totalPayments: 0,
     totalRevenue: 0,
+    revenueByYear: [] as { year: number; subtotal: number }[],
     recentFacilities: [] as any[],
     recentPayments: [] as any[],
     expiredFacilities: 0,
