@@ -563,6 +563,16 @@ const SuperAdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-xl font-bold text-blue-600">{formatCurrency(stats.totalRevenue)}</div>
+                {stats.revenueByYear.length > 0 && (
+                  <div className="mt-2 space-y-1 border-t pt-2">
+                    {stats.revenueByYear.map((item) => (
+                      <div key={item.year} className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">{item.year}</span>
+                        <span className="font-medium">{formatCurrency(item.subtotal)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
