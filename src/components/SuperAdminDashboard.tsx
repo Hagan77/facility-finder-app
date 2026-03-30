@@ -49,6 +49,7 @@ const SuperAdminDashboard = () => {
     totalFacilities: 0,
     totalPayments: 0,
     totalRevenue: 0,
+    revenueByYear: [] as { year: number; subtotal: number }[],
     recentFacilities: [] as any[],
     recentPayments: [] as any[],
     expiredFacilities: 0,
@@ -281,6 +282,12 @@ const SuperAdminDashboard = () => {
         _sector: null,
       });
 
+      const { data: revenueByYear } = await supabase.rpc("get_revenue_by_year", {
+        _region_id: null,
+        _office_id: null,
+        _sector: null,
+      });
+
       const { data: recentPayments } = await supabase
         .from("payments")
         .select("*")
@@ -291,6 +298,7 @@ const SuperAdminDashboard = () => {
         totalFacilities: allFacilitiesData.length,
         totalPayments: paymentsCount || 0,
         totalRevenue: totalRevenue || 0,
+        revenueByYear: (revenueByYear as { year: number; subtotal: number }[]) || [],
         recentFacilities: recentFacilities || [],
         recentPayments: recentPayments || [],
         expiredFacilities: expired,
@@ -555,6 +563,16 @@ const SuperAdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-xl font-bold text-blue-600">{formatCurrency(stats.totalRevenue)}</div>
+                {stats.revenueByYear.length > 0 && (
+                  <div className="mt-2 space-y-1 border-t pt-2">
+                    {stats.revenueByYear.map((item) => (
+                      <div key={item.year} className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">{item.year}</span>
+                        <span className="font-medium">{formatCurrency(item.subtotal)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -1023,10 +1041,23 @@ const SuperAdminDashboard = () => {
               <CardTitle>Revenue Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
+              <div className="text-center py-4">
                 <div className="text-5xl font-bold text-primary mb-2">{formatCurrency(stats.totalRevenue)}</div>
                 <p className="text-muted-foreground">Total Revenue from {stats.totalPayments} Payments</p>
               </div>
+              {stats.revenueByYear.length > 0 && (
+                <div className="mt-4 border-t pt-4">
+                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Yearly Breakdown</h4>
+                  <div className="grid gap-2">
+                    {stats.revenueByYear.map((item) => (
+                      <div key={item.year} className="flex justify-between items-center p-2 rounded-md bg-muted/50">
+                        <span className="font-medium">{item.year}</span>
+                        <span className="font-bold">{formatCurrency(item.subtotal)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

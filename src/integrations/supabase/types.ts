@@ -279,6 +279,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_revenue_by_year: {
+        Args: { _office_id?: string; _region_id?: string; _sector?: string }
+        Returns: {
+          subtotal: number
+          year: number
+        }[]
+      }
       get_total_revenue: {
         Args: { _office_id?: string; _region_id?: string; _sector?: string }
         Returns: number

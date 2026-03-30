@@ -24,6 +24,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
     totalFacilities: 0,
     totalPayments: 0,
     totalRevenue: 0,
+    revenueByYear: [] as { year: number; subtotal: number }[],
     recentFacilities: [] as any[],
     recentPayments: [] as any[],
     expiredFacilities: 0,
@@ -249,6 +250,17 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
 
       if (revenueError) throw revenueError;
 
+      // Fetch revenue breakdown by year
+      const { data: revenueByYear, error: yearlyError } = await supabase.rpc("get_revenue_by_year", {
+        _region_id: selectedRegion?.id || null,
+        _office_id: selectedOffice?.id || null,
+        _sector: sectorFilter || null,
+      });
+
+      if (yearlyError) {
+        console.error("Error fetching yearly revenue:", yearlyError);
+      }
+
       // Fetch recent payments for display - filter by sector if applicable
       let recentPaymentsQuery = supabase
         .from("payments")
@@ -280,6 +292,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         totalFacilities: actualTotal,
         totalPayments: paymentsCount || 0,
         totalRevenue: totalRevenue || 0,
+        revenueByYear: (revenueByYear as { year: number; subtotal: number }[]) || [],
         recentFacilities: recentFacilities || [],
         recentPayments: recentPayments || [],
         expiredFacilities: expired,
@@ -597,6 +610,16 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
             <p className="text-xs text-muted-foreground mt-1">
               All-time revenue
             </p>
+            {stats.revenueByYear.length > 0 && (
+              <div className="mt-3 space-y-1 border-t pt-2">
+                {stats.revenueByYear.map((item) => (
+                  <div key={item.year} className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">{item.year}</span>
+                    <span className="font-medium">{formatCurrency(item.subtotal)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
