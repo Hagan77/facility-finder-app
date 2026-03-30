@@ -281,6 +281,12 @@ const SuperAdminDashboard = () => {
         _sector: null,
       });
 
+      const { data: recentPayments } = await supabase
+        .from("payments")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
       setStats({
         totalFacilities: allFacilitiesData.length,
         totalPayments: paymentsCount || 0,
