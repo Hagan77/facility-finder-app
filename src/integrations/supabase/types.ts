@@ -279,6 +279,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_total_revenue: {
+        Args: { _office_id?: string; _region_id?: string; _sector?: string }
+        Returns: number
+      }
       get_user_sector: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["sector_type"]

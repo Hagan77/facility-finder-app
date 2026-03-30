@@ -275,9 +275,11 @@ const SuperAdminDashboard = () => {
         .from("payments")
         .select("*", { count: "exact", head: true });
 
-      const { data: allPaymentsData } = await supabase
-        .from("payments")
-        .select("amount_paid");
+      const { data: totalRevenue } = await supabase.rpc("get_total_revenue", {
+        _region_id: null,
+        _office_id: null,
+        _sector: null,
+      });
 
       const { data: recentPayments } = await supabase
         .from("payments")
@@ -285,12 +287,10 @@ const SuperAdminDashboard = () => {
         .order("created_at", { ascending: false })
         .limit(5);
 
-      const totalRevenue = allPaymentsData?.reduce((sum, p) => sum + (p.amount_paid || 0), 0) || 0;
-
       setStats({
         totalFacilities: allFacilitiesData.length,
         totalPayments: paymentsCount || 0,
-        totalRevenue,
+        totalRevenue: totalRevenue || 0,
         recentFacilities: recentFacilities || [],
         recentPayments: recentPayments || [],
         expiredFacilities: expired,

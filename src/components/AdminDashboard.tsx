@@ -240,25 +240,14 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
 
       if (paymentsCountError) throw paymentsCountError;
 
-      // Fetch ALL payments to calculate total revenue - filter by sector if applicable
-      let allPaymentsQuery = supabase
-        .from("payments")
-        .select("amount_paid");
-      
-      if (selectedRegion) {
-        allPaymentsQuery = allPaymentsQuery.eq("region_id", selectedRegion.id);
-      }
-      if (selectedOffice) {
-        allPaymentsQuery = allPaymentsQuery.eq("office_id", selectedOffice.id);
-      }
-      
-      if (sectorFilter) {
-        allPaymentsQuery = allPaymentsQuery.ilike("sector", sectorFilter);
-      }
-      
-      const { data: allPayments, error: allPaymentsError } = await allPaymentsQuery;
+      // Use server-side function to calculate total revenue (avoids 1000 row limit)
+      const { data: totalRevenue, error: revenueError } = await supabase.rpc("get_total_revenue", {
+        _region_id: selectedRegion?.id || null,
+        _office_id: selectedOffice?.id || null,
+        _sector: sectorFilter || null,
+      });
 
-      if (allPaymentsError) throw allPaymentsError;
+      if (revenueError) throw revenueError;
 
       // Fetch recent payments for display - filter by sector if applicable
       let recentPaymentsQuery = supabase
@@ -282,7 +271,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
 
       if (paymentError) throw paymentError;
 
-      const totalRevenue = allPayments?.reduce((sum, p) => sum + (p.amount_paid || 0), 0) || 0;
+      // totalRevenue already calculated via RPC above
 
       const actualTotal = allFacilities.length;
       console.log(`Setting stats with totalFacilities: ${actualTotal}`);
@@ -290,7 +279,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       setStats({
         totalFacilities: actualTotal,
         totalPayments: paymentsCount || 0,
-        totalRevenue,
+        totalRevenue: totalRevenue || 0,
         recentFacilities: recentFacilities || [],
         recentPayments: recentPayments || [],
         expiredFacilities: expired,
