@@ -279,7 +279,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       setStats({
         totalFacilities: actualTotal,
         totalPayments: paymentsCount || 0,
-        totalRevenue,
+        totalRevenue: totalRevenue || 0,
         recentFacilities: recentFacilities || [],
         recentPayments: recentPayments || [],
         expiredFacilities: expired,
