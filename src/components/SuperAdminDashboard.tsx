@@ -49,6 +49,7 @@ const SuperAdminDashboard = () => {
     totalFacilities: 0,
     totalPayments: 0,
     totalRevenue: 0,
+    revenueByYear: [] as { year: number; subtotal: number }[],
     recentFacilities: [] as any[],
     recentPayments: [] as any[],
     expiredFacilities: 0,
