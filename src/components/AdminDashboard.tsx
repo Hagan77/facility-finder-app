@@ -610,6 +610,16 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
             <p className="text-xs text-muted-foreground mt-1">
               All-time revenue
             </p>
+            {stats.revenueByYear.length > 0 && (
+              <div className="mt-3 space-y-1 border-t pt-2">
+                {stats.revenueByYear.map((item) => (
+                  <div key={item.year} className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">{item.year}</span>
+                    <span className="font-medium">{formatCurrency(item.subtotal)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
