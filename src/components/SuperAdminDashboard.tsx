@@ -282,6 +282,12 @@ const SuperAdminDashboard = () => {
         _sector: null,
       });
 
+      const { data: revenueByYear } = await supabase.rpc("get_revenue_by_year", {
+        _region_id: null,
+        _office_id: null,
+        _sector: null,
+      });
+
       const { data: recentPayments } = await supabase
         .from("payments")
         .select("*")
@@ -292,6 +298,7 @@ const SuperAdminDashboard = () => {
         totalFacilities: allFacilitiesData.length,
         totalPayments: paymentsCount || 0,
         totalRevenue: totalRevenue || 0,
+        revenueByYear: (revenueByYear as { year: number; subtotal: number }[]) || [],
         recentFacilities: recentFacilities || [],
         recentPayments: recentPayments || [],
         expiredFacilities: expired,
