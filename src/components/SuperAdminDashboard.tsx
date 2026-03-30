@@ -290,7 +290,7 @@ const SuperAdminDashboard = () => {
       setStats({
         totalFacilities: allFacilitiesData.length,
         totalPayments: paymentsCount || 0,
-        totalRevenue,
+        totalRevenue: totalRevenue || 0,
         recentFacilities: recentFacilities || [],
         recentPayments: recentPayments || [],
         expiredFacilities: expired,
