@@ -292,6 +292,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         totalFacilities: actualTotal,
         totalPayments: paymentsCount || 0,
         totalRevenue: totalRevenue || 0,
+        revenueByYear: (revenueByYear as { year: number; subtotal: number }[]) || [],
         recentFacilities: recentFacilities || [],
         recentPayments: recentPayments || [],
         expiredFacilities: expired,
