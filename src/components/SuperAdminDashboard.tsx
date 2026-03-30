@@ -1041,10 +1041,23 @@ const SuperAdminDashboard = () => {
               <CardTitle>Revenue Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
+              <div className="text-center py-4">
                 <div className="text-5xl font-bold text-primary mb-2">{formatCurrency(stats.totalRevenue)}</div>
                 <p className="text-muted-foreground">Total Revenue from {stats.totalPayments} Payments</p>
               </div>
+              {stats.revenueByYear.length > 0 && (
+                <div className="mt-4 border-t pt-4">
+                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Yearly Breakdown</h4>
+                  <div className="grid gap-2">
+                    {stats.revenueByYear.map((item) => (
+                      <div key={item.year} className="flex justify-between items-center p-2 rounded-md bg-muted/50">
+                        <span className="font-medium">{item.year}</span>
+                        <span className="font-bold">{formatCurrency(item.subtotal)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
