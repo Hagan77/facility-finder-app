@@ -271,7 +271,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
 
       if (paymentError) throw paymentError;
 
-      const totalRevenue = allPayments?.reduce((sum, p) => sum + (p.amount_paid || 0), 0) || 0;
+      // totalRevenue already calculated via RPC above
 
       const actualTotal = allFacilities.length;
       console.log(`Setting stats with totalFacilities: ${actualTotal}`);
