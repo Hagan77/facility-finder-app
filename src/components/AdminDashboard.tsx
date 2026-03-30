@@ -250,6 +250,17 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
 
       if (revenueError) throw revenueError;
 
+      // Fetch revenue breakdown by year
+      const { data: revenueByYear, error: yearlyError } = await supabase.rpc("get_revenue_by_year", {
+        _region_id: selectedRegion?.id || null,
+        _office_id: selectedOffice?.id || null,
+        _sector: sectorFilter || null,
+      });
+
+      if (yearlyError) {
+        console.error("Error fetching yearly revenue:", yearlyError);
+      }
+
       // Fetch recent payments for display - filter by sector if applicable
       let recentPaymentsQuery = supabase
         .from("payments")
