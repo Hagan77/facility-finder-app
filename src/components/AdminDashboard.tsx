@@ -312,13 +312,6 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         description: "Could not fetch dashboard statistics",
         variant: "destructive",
       });
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      toast({
-        title: "Error loading dashboard",
-        description: "Could not fetch dashboard statistics",
-        variant: "destructive",
-      });
     } finally {
       setLoading(false);
       setLastRefreshed(new Date());
