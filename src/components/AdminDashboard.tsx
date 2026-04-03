@@ -758,7 +758,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         {/* Refresh Button */}
         <div className="text-center">
           <Button onClick={fetchDashboardData} variant="outline">
-            <Calendar className="w-4 h-4 mr-2" />
+            <RefreshCw className="w-4 h-4 mr-2" />
             Refresh Data
           </Button>
         </div>
