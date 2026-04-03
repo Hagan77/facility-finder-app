@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, CreditCard, TrendingUp, Calendar, FileText, Search, AlertCircle, Clock, CheckCircle, Download, Upload } from "lucide-react";
+import { Building2, CreditCard, TrendingUp, Calendar, FileText, Search, AlertCircle, Clock, CheckCircle, Download, Upload, ShieldCheck, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRegionFilter } from "@/hooks/useRegionFilter";
 import RegionIndicator from "./RegionIndicator";
