@@ -415,6 +415,11 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
         <p className="text-xl text-muted-foreground">
           {sectorFilter ? `${sectorFilter} Sector Overview` : "Overview of facility management system"}
         </p>
+        {lastRefreshed && (
+          <p className="text-xs text-muted-foreground mt-1">
+            Last refreshed: {lastRefreshed.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+          </p>
+        )}
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
