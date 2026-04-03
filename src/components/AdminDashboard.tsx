@@ -38,6 +38,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
   });
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState<'valid' | 'expiring' | 'expired' | null>(null);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const { toast } = useToast();
   const { selectedRegion, selectedOffice, getLocationDisplay } = useRegionFilter();
 
