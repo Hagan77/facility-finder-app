@@ -571,7 +571,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
       </Dialog>
 
       {/* General Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Facilities</CardTitle>
@@ -579,18 +579,34 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalFacilities}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Registered facilities
-            </p>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="mt-3 w-full"
-              onClick={() => exportToCSV(stats.totalFacilitiesList, 'total-facilities')}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export
+            <p className="text-xs text-muted-foreground mt-1">Registered facilities</p>
+            <Button size="sm" variant="outline" className="mt-3 w-full"
+              onClick={() => exportToCSV(stats.totalFacilitiesList, 'total-facilities')}>
+              <Download className="h-4 w-4 mr-2" />Export
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Compliance Rate</CardTitle>
+            <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.totalFacilities > 0
+                ? `${((stats.activeFacilities / stats.totalFacilities) * 100).toFixed(1)}%`
+                : '0%'}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.activeFacilities} of {stats.totalFacilities} facilities valid
+            </p>
+            <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-green-500 transition-all"
+                style={{ width: `${stats.totalFacilities > 0 ? (stats.activeFacilities / stats.totalFacilities) * 100 : 0}%` }}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -601,9 +617,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalPayments}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Payment records
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Payment records</p>
           </CardContent>
         </Card>
 
@@ -614,9 +628,7 @@ const AdminDashboard = ({ sectorFilter, title = "Director Dashboard" }: AdminDas
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              All-time revenue
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">All-time revenue</p>
             {stats.revenueByYear.length > 0 && (
               <div className="mt-3 space-y-1 border-t pt-2">
                 {stats.revenueByYear.map((item) => (
