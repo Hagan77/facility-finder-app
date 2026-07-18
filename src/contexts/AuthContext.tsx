@@ -73,6 +73,13 @@ const validCredentials = [
   { username: "Wa Health", password: "Wa@Health1", role: "sector_head", sector: "health", office: "Wa Main Office" },
   { username: "Wa Mining", password: "Wa@Mining1", role: "sector_head", sector: "mining", office: "Wa Main Office" },
   { username: "Wa User", password: "Wa@User1", role: "user", sector: null, office: "Wa Main Office" },
+
+  // === BOLGATANGA MAIN OFFICE (UPPER EAST) ===
+  { username: "Bolga Director", password: "Bolga@Dir1", role: "admin", sector: null, office: "Bolgatanga Main Office" },
+  { username: "Bolga Hospitality", password: "Bolga@Hosp1", role: "sector_head", sector: "hospitality", office: "Bolgatanga Main Office" },
+  { username: "Bolga Health", password: "Bolga@Health1", role: "sector_head", sector: "health", office: "Bolgatanga Main Office" },
+  { username: "Bolga Mining", password: "Bolga@Mining1", role: "sector_head", sector: "mining", office: "Bolgatanga Main Office" },
+  { username: "Bolga User", password: "Bolga@User1", role: "user", sector: null, office: "Bolgatanga Main Office" },
 ];
 
 interface UserProfile {
