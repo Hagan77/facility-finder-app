@@ -78,6 +78,7 @@ const validCredentials = [
   { username: "Wa Hospitality", password: "Wa@Hosp1", role: "sector_head", sector: "hospitality", office: "Wa Main Office" },
   { username: "Wa Health", password: "Wa@Health1", role: "sector_head", sector: "health", office: "Wa Main Office" },
   { username: "Wa Mining", password: "Wa@Mining1", role: "sector_head", sector: "mining", office: "Wa Main Office" },
+  { username: "Wa Infrastructure", password: "Wa@Infra1", role: "sector_head", sector: "infrastructure", office: "Wa Main Office" },
   { username: "Wa User", password: "Wa@User1", role: "user", sector: null, office: "Wa Main Office" },
 
   // === BOLGATANGA MAIN OFFICE (UPPER EAST) ===
