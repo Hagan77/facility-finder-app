@@ -54,6 +54,7 @@ const validCredentials = [
   { username: "Nkawie Hospitality", password: "Nkawie@Hosp1", role: "sector_head", sector: "hospitality", office: "Nkawie Area Office" },
   { username: "Nkawie Health", password: "Nkawie@Health1", role: "sector_head", sector: "health", office: "Nkawie Area Office" },
   { username: "Nkawie Mining", password: "Nkawie@Mining1", role: "sector_head", sector: "mining", office: "Nkawie Area Office" },
+  { username: "Nkawie Infrastructure", password: "Nkawie@Infra1", role: "sector_head", sector: "infrastructure", office: "Nkawie Area Office" },
   { username: "Nkawie User", password: "Nkawie@User1", role: "user", sector: null, office: "Nkawie Area Office" },
 
   // === EJISU AREA OFFICE ===
