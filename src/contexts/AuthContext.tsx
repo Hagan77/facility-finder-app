@@ -70,6 +70,7 @@ const validCredentials = [
   { username: "Tepa Hospitality", password: "Tepa@Hosp1", role: "sector_head", sector: "hospitality", office: "Tepa Area Office" },
   { username: "Tepa Health", password: "Tepa@Health1", role: "sector_head", sector: "health", office: "Tepa Area Office" },
   { username: "Tepa Mining", password: "Tepa@Mining1", role: "sector_head", sector: "mining", office: "Tepa Area Office" },
+  { username: "Tepa Infrastructure", password: "Tepa@Infra1", role: "sector_head", sector: "infrastructure", office: "Tepa Area Office" },
   { username: "Tepa User", password: "Tepa@User1", role: "user", sector: null, office: "Tepa Area Office" },
 
   // === WA MAIN OFFICE (UPPER WEST) ===
