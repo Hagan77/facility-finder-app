@@ -30,6 +30,7 @@ const validCredentials = [
   { username: "Amansie Hospitality", password: "Amansie@Hosp1", role: "sector_head", sector: "hospitality", office: "Amansie Area Office" },
   { username: "Amansie Health", password: "Amansie@Health1", role: "sector_head", sector: "health", office: "Amansie Area Office" },
   { username: "Amansie Mining", password: "Amansie@Mining1", role: "sector_head", sector: "mining", office: "Amansie Area Office" },
+  { username: "Amansie Infrastructure", password: "Amansie@Infra1", role: "sector_head", sector: "infrastructure", office: "Amansie Area Office" },
   { username: "Amansie User", password: "Amansie@User1", role: "user", sector: null, office: "Amansie Area Office" },
 
   // === OFFINSO AREA OFFICE ===
@@ -37,6 +38,7 @@ const validCredentials = [
   { username: "Offinso Hospitality", password: "Offinso@Hosp1", role: "sector_head", sector: "hospitality", office: "Offinso Area Office" },
   { username: "Offinso Health", password: "Offinso@Health1", role: "sector_head", sector: "health", office: "Offinso Area Office" },
   { username: "Offinso Mining", password: "Offinso@Mining1", role: "sector_head", sector: "mining", office: "Offinso Area Office" },
+  { username: "Offinso Infrastructure", password: "Offinso@Infra1", role: "sector_head", sector: "infrastructure", office: "Offinso Area Office" },
   { username: "Offinso User", password: "Offinso@User1", role: "user", sector: null, office: "Offinso Area Office" },
 
   // === MAMPONG AREA OFFICE ===
@@ -44,6 +46,7 @@ const validCredentials = [
   { username: "Mampong Hospitality", password: "Mampong@Hosp1", role: "sector_head", sector: "hospitality", office: "Mampong Area Office" },
   { username: "Mampong Health", password: "Mampong@Health1", role: "sector_head", sector: "health", office: "Mampong Area Office" },
   { username: "Mampong Mining", password: "Mampong@Mining1", role: "sector_head", sector: "mining", office: "Mampong Area Office" },
+  { username: "Mampong Infrastructure", password: "Mampong@Infra1", role: "sector_head", sector: "infrastructure", office: "Mampong Area Office" },
   { username: "Mampong User", password: "Mampong@User1", role: "user", sector: null, office: "Mampong Area Office" },
 
   // === NKAWIE AREA OFFICE ===
@@ -51,6 +54,7 @@ const validCredentials = [
   { username: "Nkawie Hospitality", password: "Nkawie@Hosp1", role: "sector_head", sector: "hospitality", office: "Nkawie Area Office" },
   { username: "Nkawie Health", password: "Nkawie@Health1", role: "sector_head", sector: "health", office: "Nkawie Area Office" },
   { username: "Nkawie Mining", password: "Nkawie@Mining1", role: "sector_head", sector: "mining", office: "Nkawie Area Office" },
+  { username: "Nkawie Infrastructure", password: "Nkawie@Infra1", role: "sector_head", sector: "infrastructure", office: "Nkawie Area Office" },
   { username: "Nkawie User", password: "Nkawie@User1", role: "user", sector: null, office: "Nkawie Area Office" },
 
   // === EJISU AREA OFFICE ===
@@ -58,6 +62,7 @@ const validCredentials = [
   { username: "Ejisu Hospitality", password: "Ejisu@Hosp1", role: "sector_head", sector: "hospitality", office: "Ejisu Area Office" },
   { username: "Ejisu Health", password: "Ejisu@Health1", role: "sector_head", sector: "health", office: "Ejisu Area Office" },
   { username: "Ejisu Mining", password: "Ejisu@Mining1", role: "sector_head", sector: "mining", office: "Ejisu Area Office" },
+  { username: "Ejisu Infrastructure", password: "Ejisu@Infra1", role: "sector_head", sector: "infrastructure", office: "Ejisu Area Office" },
   { username: "Ejisu User", password: "Ejisu@User1", role: "user", sector: null, office: "Ejisu Area Office" },
 
   // === TEPA AREA OFFICE ===
@@ -65,6 +70,7 @@ const validCredentials = [
   { username: "Tepa Hospitality", password: "Tepa@Hosp1", role: "sector_head", sector: "hospitality", office: "Tepa Area Office" },
   { username: "Tepa Health", password: "Tepa@Health1", role: "sector_head", sector: "health", office: "Tepa Area Office" },
   { username: "Tepa Mining", password: "Tepa@Mining1", role: "sector_head", sector: "mining", office: "Tepa Area Office" },
+  { username: "Tepa Infrastructure", password: "Tepa@Infra1", role: "sector_head", sector: "infrastructure", office: "Tepa Area Office" },
   { username: "Tepa User", password: "Tepa@User1", role: "user", sector: null, office: "Tepa Area Office" },
 
   // === WA MAIN OFFICE (UPPER WEST) ===
@@ -72,6 +78,7 @@ const validCredentials = [
   { username: "Wa Hospitality", password: "Wa@Hosp1", role: "sector_head", sector: "hospitality", office: "Wa Main Office" },
   { username: "Wa Health", password: "Wa@Health1", role: "sector_head", sector: "health", office: "Wa Main Office" },
   { username: "Wa Mining", password: "Wa@Mining1", role: "sector_head", sector: "mining", office: "Wa Main Office" },
+  { username: "Wa Infrastructure", password: "Wa@Infra1", role: "sector_head", sector: "infrastructure", office: "Wa Main Office" },
   { username: "Wa User", password: "Wa@User1", role: "user", sector: null, office: "Wa Main Office" },
 
   // === BOLGATANGA MAIN OFFICE (UPPER EAST) ===
@@ -79,6 +86,7 @@ const validCredentials = [
   { username: "Bolga Hospitality", password: "Bolga@Hosp1", role: "sector_head", sector: "hospitality", office: "Bolgatanga Main Office" },
   { username: "Bolga Health", password: "Bolga@Health1", role: "sector_head", sector: "health", office: "Bolgatanga Main Office" },
   { username: "Bolga Mining", password: "Bolga@Mining1", role: "sector_head", sector: "mining", office: "Bolgatanga Main Office" },
+  { username: "Bolga Infrastructure", password: "Bolga@Infra1", role: "sector_head", sector: "infrastructure", office: "Bolgatanga Main Office" },
   { username: "Bolga User", password: "Bolga@User1", role: "user", sector: null, office: "Bolgatanga Main Office" },
 ];
 
