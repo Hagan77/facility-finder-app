@@ -86,6 +86,7 @@ const validCredentials = [
   { username: "Bolga Hospitality", password: "Bolga@Hosp1", role: "sector_head", sector: "hospitality", office: "Bolgatanga Main Office" },
   { username: "Bolga Health", password: "Bolga@Health1", role: "sector_head", sector: "health", office: "Bolgatanga Main Office" },
   { username: "Bolga Mining", password: "Bolga@Mining1", role: "sector_head", sector: "mining", office: "Bolgatanga Main Office" },
+  { username: "Bolga Infrastructure", password: "Bolga@Infra1", role: "sector_head", sector: "infrastructure", office: "Bolgatanga Main Office" },
   { username: "Bolga User", password: "Bolga@User1", role: "user", sector: null, office: "Bolgatanga Main Office" },
 ];
 
