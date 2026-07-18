@@ -46,6 +46,7 @@ const validCredentials = [
   { username: "Mampong Hospitality", password: "Mampong@Hosp1", role: "sector_head", sector: "hospitality", office: "Mampong Area Office" },
   { username: "Mampong Health", password: "Mampong@Health1", role: "sector_head", sector: "health", office: "Mampong Area Office" },
   { username: "Mampong Mining", password: "Mampong@Mining1", role: "sector_head", sector: "mining", office: "Mampong Area Office" },
+  { username: "Mampong Infrastructure", password: "Mampong@Infra1", role: "sector_head", sector: "infrastructure", office: "Mampong Area Office" },
   { username: "Mampong User", password: "Mampong@User1", role: "user", sector: null, office: "Mampong Area Office" },
 
   // === NKAWIE AREA OFFICE ===
