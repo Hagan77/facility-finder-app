@@ -30,6 +30,7 @@ const validCredentials = [
   { username: "Amansie Hospitality", password: "Amansie@Hosp1", role: "sector_head", sector: "hospitality", office: "Amansie Area Office" },
   { username: "Amansie Health", password: "Amansie@Health1", role: "sector_head", sector: "health", office: "Amansie Area Office" },
   { username: "Amansie Mining", password: "Amansie@Mining1", role: "sector_head", sector: "mining", office: "Amansie Area Office" },
+  { username: "Amansie Infrastructure", password: "Amansie@Infra1", role: "sector_head", sector: "infrastructure", office: "Amansie Area Office" },
   { username: "Amansie User", password: "Amansie@User1", role: "user", sector: null, office: "Amansie Area Office" },
 
   // === OFFINSO AREA OFFICE ===
