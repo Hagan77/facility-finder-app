@@ -66,6 +66,13 @@ const validCredentials = [
   { username: "Tepa Health", password: "Tepa@Health1", role: "sector_head", sector: "health", office: "Tepa Area Office" },
   { username: "Tepa Mining", password: "Tepa@Mining1", role: "sector_head", sector: "mining", office: "Tepa Area Office" },
   { username: "Tepa User", password: "Tepa@User1", role: "user", sector: null, office: "Tepa Area Office" },
+
+  // === WA MAIN OFFICE (UPPER WEST) ===
+  { username: "Wa Director", password: "Wa@Dir1", role: "admin", sector: null, office: "Wa Main Office" },
+  { username: "Wa Hospitality", password: "Wa@Hosp1", role: "sector_head", sector: "hospitality", office: "Wa Main Office" },
+  { username: "Wa Health", password: "Wa@Health1", role: "sector_head", sector: "health", office: "Wa Main Office" },
+  { username: "Wa Mining", password: "Wa@Mining1", role: "sector_head", sector: "mining", office: "Wa Main Office" },
+  { username: "Wa User", password: "Wa@User1", role: "user", sector: null, office: "Wa Main Office" },
 ];
 
 interface UserProfile {
