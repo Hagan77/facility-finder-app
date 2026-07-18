@@ -62,6 +62,7 @@ const validCredentials = [
   { username: "Ejisu Hospitality", password: "Ejisu@Hosp1", role: "sector_head", sector: "hospitality", office: "Ejisu Area Office" },
   { username: "Ejisu Health", password: "Ejisu@Health1", role: "sector_head", sector: "health", office: "Ejisu Area Office" },
   { username: "Ejisu Mining", password: "Ejisu@Mining1", role: "sector_head", sector: "mining", office: "Ejisu Area Office" },
+  { username: "Ejisu Infrastructure", password: "Ejisu@Infra1", role: "sector_head", sector: "infrastructure", office: "Ejisu Area Office" },
   { username: "Ejisu User", password: "Ejisu@User1", role: "user", sector: null, office: "Ejisu Area Office" },
 
   // === TEPA AREA OFFICE ===
