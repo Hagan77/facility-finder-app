@@ -38,6 +38,7 @@ const validCredentials = [
   { username: "Offinso Hospitality", password: "Offinso@Hosp1", role: "sector_head", sector: "hospitality", office: "Offinso Area Office" },
   { username: "Offinso Health", password: "Offinso@Health1", role: "sector_head", sector: "health", office: "Offinso Area Office" },
   { username: "Offinso Mining", password: "Offinso@Mining1", role: "sector_head", sector: "mining", office: "Offinso Area Office" },
+  { username: "Offinso Infrastructure", password: "Offinso@Infra1", role: "sector_head", sector: "infrastructure", office: "Offinso Area Office" },
   { username: "Offinso User", password: "Offinso@User1", role: "user", sector: null, office: "Offinso Area Office" },
 
   // === MAMPONG AREA OFFICE ===
